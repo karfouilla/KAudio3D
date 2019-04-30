@@ -191,7 +191,7 @@ static inline void Swap64(std::uint64_t& x) noexcept
 #endif // PLATFORM_LINUX
 
 /**
- * @defgroup Spécialisation de chaque type pour les conversion d'endianness cf. #Endianness
+ * @defgroup Spécialisation de chaque type pour les conversion d'endianness
  * @{
  */
 

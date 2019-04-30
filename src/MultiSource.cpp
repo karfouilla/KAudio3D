@@ -1,12 +1,10 @@
-#ifndef AUDIOLISTENERDATA_H_INCLUDED
-#define AUDIOLISTENERDATA_H_INCLUDED
 /**
  *
- * @file AudioContext.h
+ * @file MultiSource.cpp
  * @author karfouilla
  * @version 1.0
- * @date 27 avril 2019
- * @brief Fichier contenant le contexte audio pour #AudioListener (H)
+ * @date 30 avril 2019
+ * @brief Fichier contenant la classe de source sonore multiple (CPP)
  *
  */
 ////////////////////////////////////////////////////////////////////////////////
@@ -27,34 +25,17 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-#include <AL/alc.h>
+#include "MultiSource.h"
 
 namespace KA3D
 {
-class AudioContext
+
+MultiSource::MultiSource()
 {
-public:
-	AudioContext(const char* deviceName = nullptr);
-	AudioContext(AudioContext& ) noexcept = delete;
-	AudioContext& operator=(AudioContext& ) noexcept = delete;
-	~AudioContext() noexcept;
+}
 
-	ALCdevice* device() const noexcept;
-	ALCcontext* context() const noexcept;
+MultiSource::~MultiSource() noexcept
+{
+}
 
-	void Init(const int* attributes);
-	void Quit();
-
-	void makeCurrent();
-	static void clearCurrent();
-	void suspend();
-	void process();
-
-private:
-	ALCdevice* m_pDevices;
-	ALCcontext* m_pContext;
-	ALCchar* m_szDeviceName;
-};
 } // namespace KA3D
-
-#endif // AUDIOLISTENERDATA_H_INCLUDED

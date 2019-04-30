@@ -85,7 +85,7 @@ WaveFile::WaveFile(std::iostream& refFile) noexcept:
 	m_uFileSize(4),
 	m_uFileRemaining(m_uFileSize),
 	m_uSamplesPerSec(0),
-	m_format(ADF_LAST),
+	m_format(DF_LAST),
 	m_uSize(0),
 	m_uRemaining(0)
 { }
@@ -159,9 +159,9 @@ void WaveFile::readHeaders()
 
 	// Enregistrement
 	m_uSamplesPerSec = fmtCom.dwSamplesPerSec;
-	m_format = AudioData::formatFromPerSample(fmtCom.wChannels,
+	m_format = Data::formatFromPerSample(fmtCom.wChannels,
 	                                          fmtPCM.wBitsPerSample/8);
-	audioPitch = AudioData::formatPitch(m_format);
+	audioPitch = Data::formatPitch(m_format);
 
 	// Données
 	findNextChunk(RIFF_TAG_DATA, m_uSize);
@@ -178,11 +178,11 @@ void WaveFile::readHeaders()
 
 void WaveFile::writeHeaders()
 {
-	std::uint16_t bytesPerSample(AudioData::formatBytesPerSample(m_format));
+	std::uint16_t bytesPerSample(Data::formatBytesPerSample(m_format));
 	fmtCommon fmtCom;
 	fmtSpecificPCM fmtPCM;
 	fmtCom.wFormatTag = WAVE_FORMAT_PCM;
-	fmtCom.wChannels = AudioData::formatChannels(m_format);
+	fmtCom.wChannels = Data::formatChannels(m_format);
 	fmtCom.dwSamplesPerSec = m_uSamplesPerSec;
 	fmtCom.wBlockAlign = fmtCom.wChannels * bytesPerSample;
 	fmtCom.dwAvgBytesPerSec = fmtCom.wBlockAlign * m_uSamplesPerSec;
@@ -222,7 +222,7 @@ std::uint64_t WaveFile::read(void* data, std::uint64_t size)
 	readable = std::min(static_cast<std::uint64_t>(m_uRemaining), size);
 	rawRead(data, readable);
 
-	if(AudioData::formatBytesPerSample(m_format) == 2)
+	if(Data::formatBytesPerSample(m_format) == 2)
 	{
 		std::uint16_t* data16(static_cast<std::uint16_t*>(data));
 		std::uint32_t count(readable/2);
@@ -240,7 +240,7 @@ void WaveFile::write(const void* data, std::uint64_t size)
 {
 	assert(m_uRemaining >= size);
 
-	if(AudioData::formatBytesPerSample(m_format) == 2)
+	if(Data::formatBytesPerSample(m_format) == 2)
 	{
 		std::uint16_t count(size/2);
 		std::uint16_t* data16(new std::uint16_t[count]);
@@ -306,7 +306,7 @@ void WaveFile::setSamplesPerSec(std::uint32_t dwSamplesPerSec) noexcept
 	// Avant ouverture et en mode écriture seulement
 	m_uSamplesPerSec = dwSamplesPerSec;
 }
-void WaveFile::setFormat(AudioDataFormat format) noexcept
+void WaveFile::setFormat(DataFormat format) noexcept
 {
 	// Avant ouverture et en mode écriture seulement
 	m_format = format;
@@ -320,7 +320,7 @@ std::uint32_t WaveFile::samplesPerSec() const noexcept
 {
 	return m_uSamplesPerSec;
 }
-AudioDataFormat WaveFile::format() const noexcept
+DataFormat WaveFile::format() const noexcept
 {
 	return m_format;
 }

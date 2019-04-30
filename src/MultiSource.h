@@ -1,12 +1,12 @@
-#ifndef AUDIODATAPRIVATE_H_INCLUDED
-#define AUDIODATAPRIVATE_H_INCLUDED
+#ifndef MULTISOURCE_H_INCLUDED
+#define MULTISOURCE_H_INCLUDED
 /**
  *
- * @file AudioDataPrivate.h
+ * @file MultiSource.h
  * @author karfouilla
- * @version α.0.1
- * @date 27 avril 2019
- * @brief Fichier contenant la classe de gestion privée des données audio (H)
+ * @version 1.0
+ * @date 30 avril 2019
+ * @brief Fichier contenant la classe de source sonore multiple (H)
  *
  */
 ////////////////////////////////////////////////////////////////////////////////
@@ -27,21 +27,21 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-#include <AL/al.h>
-
 namespace KA3D
 {
 
-class AudioDataPrivate
+class MultiSource
 {
 public:
-	AudioDataPrivate() noexcept: handle(0) { }
-	~AudioDataPrivate() noexcept { }
+	MultiSource();
+	MultiSource(const MultiSource& rhs) = delete;
+	virtual ~MultiSource() noexcept;
+	MultiSource& operator=(const MultiSource& rhs) = delete;
 
-public:
-	ALuint handle;
+private:
+
 };
 
-} // namespace KA3D
+}
 
-#endif // AUDIODATAPRIVATE_H_INCLUDED
+#endif // MULTISOURCE_H_INCLUDED

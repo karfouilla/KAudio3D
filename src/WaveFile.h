@@ -30,7 +30,7 @@
 #include <cstdint>
 #include <iostream>
 
-#include "AudioData.h"
+#include "Data.h"
 
 namespace KA3D
 {
@@ -104,9 +104,9 @@ public:
 	//! Permet de définir la fréquence d'échantillonage
 	//! (à définir en mode écriteur et avant ouverture du fichier)
 	void setSamplesPerSec(std::uint32_t dwSamplesPerSec) noexcept;
-	//! Permet de définir le format des données audio (cf. #AudioDataFormat)
+	//! Permet de définir le format des données audio (cf. #DataFormat)
 	//! (à définir en mode écriteur et avant ouverture du fichier)
-	void setFormat(AudioDataFormat format) noexcept;
+	void setFormat(DataFormat format) noexcept;
 	//! Permet de définir la taille des données audio en octets
 	//! (à définir en mode écriteur et avant ouverture du fichier)
 	void setSize(std::uint32_t dwSize) noexcept;
@@ -115,7 +115,7 @@ public:
 	std::uint32_t samplesPerSec() const noexcept;
 	//! Permet d'obtenir le format des données audio
 	//! (disponible après ouverture en mode lecture)
-	AudioDataFormat format() const noexcept;
+	DataFormat format() const noexcept;
 	//! Permet d'obtenir la taille (en octets) données audio
 	//! (disponible après ouverture en mode lecture)
 	std::uint32_t size() const noexcept;
@@ -154,7 +154,7 @@ private:
 	std::uint32_t m_uFileSize; //!< Taille du flux RIFF/WAVE
 	std::uint32_t m_uFileRemaining; //!< Nombre d'octets restant (à lire/écrire)
 	std::uint32_t m_uSamplesPerSec; //!< Fréquence d'échantillonage de l'audio
-	AudioDataFormat m_format; //!< Format des données audio
+	DataFormat m_format; //!< Format des données audio
 	std::uint32_t m_uSize; //!< Taille (en octets) des données audio
 	std::uint32_t m_uRemaining; //!< Nombre d'octets restant (à lire ou écrire)
 };
