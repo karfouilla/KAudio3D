@@ -31,6 +31,9 @@
 
 #include "AudioData.h"
 
+namespace KA3D
+{
+
 class AudioDataPrivate;
 
 /**
@@ -172,7 +175,7 @@ public:
 	 * @brief Définit la position dans l'audio
 	 * @param second nombre d'échantillon
 	 */
-	void setOffset(uint32_t sample);
+	void setOffset(std::uint32_t sample);
 	/**
 	 * @brief Permet de définir si on revient au début quand la lecture est fini
 	 */
@@ -251,7 +254,7 @@ public:
 	/**
 	 * @brief Permet d'obtenir la position dans l'audio (en échantillons)
 	 */
-	uint32_t offset() const;
+	std::uint32_t offset() const;
 	/**
 	 * @brief Permet de savoir si la lecture est en boucle
 	 */
@@ -278,5 +281,7 @@ private:
 	AudioData* m_pData; //!< Données de la source audio
 	AudioDataPrivate* m_pSource; //!< Contenu privé de la source audio
 };
+
+} // namespace KA3D
 
 #endif // AUDIOSOURCE_H_INCLUDED

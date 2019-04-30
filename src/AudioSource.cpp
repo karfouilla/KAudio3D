@@ -27,14 +27,17 @@
 
 #include "AudioSource.h"
 
+#include <cstdint>
 #include <sstream>
+#include <stdexcept>
 
 #include <AL/al.h>
-#include <AL/alc.h>
 
 #include "AudioDataPrivate.h"
 #include "Error.h"
 
+namespace KA3D
+{
 
 AudioSource::AudioSource():
 	m_pData(nullptr),
@@ -193,7 +196,7 @@ void AudioSource::setOffsetSec(float second)
 	checkALError();
 }
 
-void AudioSource::setOffset(uint32_t sample)
+void AudioSource::setOffset(std::uint32_t sample)
 {
 	alSourcei(m_pSource->handle, AL_SAMPLE_OFFSET, static_cast<ALint>(sample));
 	checkALError();
@@ -320,12 +323,12 @@ float AudioSource::offsetSec() const
 	return val;
 }
 
-uint32_t AudioSource::offset() const
+std::uint32_t AudioSource::offset() const
 {
 	ALint val;
 	alGetSourcei(m_pSource->handle, AL_SAMPLE_OFFSET, &val);
 	checkALError();
-	return static_cast<uint32_t>(val);
+	return static_cast<std::uint32_t>(val);
 }
 
 bool AudioSource::isLooping() const
@@ -367,3 +370,5 @@ bool AudioSource::isInitial() const
 	checkALError();
 	return (val == AL_INITIAL);
 }
+
+} // namespace KA3D

@@ -29,6 +29,9 @@
 
 #include <AL/al.h>
 
+namespace KA3D
+{
+
 class AudioDataPrivate
 {
 public:
@@ -38,5 +41,7 @@ public:
 public:
 	ALuint handle;
 };
+
+} // namespace KA3D
 
 #endif // AUDIODATAPRIVATE_H_INCLUDED

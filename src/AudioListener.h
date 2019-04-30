@@ -27,7 +27,14 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+#include <list>
+#include <string>
+
+namespace KA3D
+{
+
 class AudioContext;
+
 
 //! Modèle d'atténuation des sons avec la distance
 //! Pour plus d'information, se référer à la documentation d'OpenAL
@@ -79,6 +86,24 @@ class AudioListener
 {
 public:
 	/**
+	 * @brief Permet d'obtenir l'écouteur actif
+	 * @return pointeur vers l'écouteur actif
+	 */
+	static AudioListener* current() noexcept;
+
+	/**
+	 * @brief Permet d'obtenir la liste des périphériques de sortie
+	 * @return liste des noms des périphériques
+	 */
+	static std::list<std::string> devices();
+	/**
+	 * @brief Permet d'obtenir le périphériques de sortie par défaut
+	 * @return nom du périphériques par défaut
+	 */
+	static std::string defaultDevice();
+
+public:
+	/**
 	 * @brief Constructeur
 	 * @param device périphérique de sortie du son
 	 */
@@ -105,6 +130,60 @@ public:
 	 */
 	void Quit();
 
+	/**
+	 * @brief Permet de définir la fréquence de la sortie à demandé
+	 * Cette attribut doit être définit avant l'initialisation
+	 * @param iFrequency fréquence en Hertz
+	 */
+	void setFrequency(int iFrequency);
+	/**
+	 * @brief Permet de définir l'interval de rafréchissement à demandé
+	 * Cette attribut doit être définit avant l'initialisation
+	 * @param iRefresh fréquence en Hertz
+	 */
+	void setRefresh(int iRefresh);
+	/**
+	 * @brief Permet de définir si le contexte est synchronisé
+	 */
+	void setSync(bool isSync);
+	/**
+	 * @brief Permet de définir le nombre de source mono 3D demandé
+	 * @param iMonoSource Nombre de source mono exigé
+	 */
+	void setMonoSource(int iMonoSource);
+	/**
+	 * @brief Permet de définir le nombre de source stéreo demandé
+	 * @param iMonoSource Nombre de source stéreo exigé
+	 */
+	void setStereoSource(int iStereoSource);
+
+	/**
+	 * @brief Permet de rendre actif ou inactif l'écouteur
+	 * @param enable true si actif, false si inactif
+	 */
+	void makeCurrent(bool enable = true);
+	/**
+	 * @brief Permet ne mettre aucun écouteur actifs
+	 */
+	static void clearCurrent();
+	/**
+	 * @brief Permet de suspendre l'écouteur
+	 */
+	void suspend();
+	/**
+	 * @brief Permet de reprendre l'écouteur
+	 */
+	void process();
+	/**
+	 * @brief Permet de savoir si cette écouteur est celui quie est actif
+	 */
+	bool isCurrent() const noexcept;
+
+	/**
+	 * @brief Permet d'obtenir le périphérique associé à cet écouteur
+	 * @return Nom du périphérique
+	 */
+	std::string device() const;
 	/**
 	 * @brief Permet de définir le volume général de l'écouteur
 	 * Valeur de référence du volume :
@@ -200,7 +279,13 @@ public:
 	DistanceModel distanceModel() const;
 
 private:
+	static AudioListener* pCurrent;
+
+private:
 	AudioContext* m_pData; //!< Données interne à la classe
+	int** m_tblAttrib; //!< Attributs du contexte de l'écouteur
 };
+
+} // namespace KA3D
 
 #endif // AUDIOLISTENER_H_INCLUDED

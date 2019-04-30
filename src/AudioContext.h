@@ -29,6 +29,8 @@
 
 #include <AL/alc.h>
 
+namespace KA3D
+{
 class AudioContext
 {
 public:
@@ -40,13 +42,19 @@ public:
 	ALCdevice* device() const noexcept;
 	ALCcontext* context() const noexcept;
 
-	void Init();
+	void Init(const int* attributes);
 	void Quit();
+
+	void makeCurrent();
+	static void clearCurrent();
+	void suspend();
+	void process();
 
 private:
 	ALCdevice* m_pDevices;
 	ALCcontext* m_pContext;
 	ALCchar* m_szDeviceName;
 };
+} // namespace KA3D
 
 #endif // AUDIOLISTENERDATA_H_INCLUDED

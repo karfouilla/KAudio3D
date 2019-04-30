@@ -29,9 +29,14 @@
 
 #include <cstring>
 #include <sstream>
+#include <stdexcept>
+
+#include <AL/alc.h>
 
 #include "Error.h"
 
+namespace KA3D
+{
 
 AudioContext::AudioContext(const char* deviceName):
 	m_pDevices(nullptr),
@@ -50,7 +55,7 @@ AudioContext::~AudioContext() noexcept
 		delete[] m_szDeviceName;
 }
 
-void AudioContext::Init()
+void AudioContext::Init(const int* attributes)
 {
 	try
 	{
@@ -62,18 +67,14 @@ void AudioContext::Init()
 			throw std::runtime_error(msg.str());
 		}
 
-		m_pContext = alcCreateContext(m_pDevices, nullptr);
+		m_pContext = alcCreateContext(m_pDevices, attributes);
 		if(m_pContext == nullptr)
-			checkALCError(device());
-
-		if(alcMakeContextCurrent(m_pContext) != ALC_TRUE)
 			checkALCError(device());
 	}
 	catch(...)
 	{
 		if(m_pContext)
 		{
-			alcMakeContextCurrent(nullptr);
 			alcDestroyContext(m_pContext);
 		}
 		if(m_pDevices)
@@ -85,14 +86,11 @@ void AudioContext::Init()
 
 void AudioContext::Quit()
 {
-	if(alcMakeContextCurrent(nullptr) != ALC_TRUE)
-		checkALCError(device());
-
 	alcDestroyContext(m_pContext);
 	checkALCError(device());
 
-	alcCloseDevice(m_pDevices);
-	checkALCError(device());
+	if(alcCloseDevice(m_pDevices) != ALC_TRUE)
+		checkALCError(device());
 }
 
 ALCdevice* AudioContext::device() const noexcept
@@ -103,3 +101,29 @@ ALCcontext* AudioContext::context() const noexcept
 {
 	return m_pContext;
 }
+
+void AudioContext::makeCurrent()
+{
+	if(alcMakeContextCurrent(m_pContext) != ALC_TRUE)
+		checkALCError(device());
+}
+
+void AudioContext::clearCurrent()
+{
+	if(alcMakeContextCurrent(nullptr) != ALC_TRUE)
+		throw std::runtime_error("Unable to set null current context");
+}
+
+void AudioContext::suspend()
+{
+	alcSuspendContext(m_pContext);
+	checkALCError(device());
+}
+
+void AudioContext::process()
+{
+	alcProcessContext(m_pContext);
+	checkALCError(device());
+}
+
+} // namespace KA3D

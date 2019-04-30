@@ -27,8 +27,13 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+#include <cstdint>
+
 #include <vector>
 #include <iostream>
+
+namespace KA3D
+{
 
 class AudioDataPrivate;
 
@@ -49,46 +54,50 @@ class AudioData
 {
 public:
 	/**
-	 * @brief Permet d'obtenir sous forme de chaîne de caractère, le nom d'un format audio
-	 * @param format Format audio dont on veux obtenir le nom (cf. #AudioDataFormat)
+	 * @brief Permet d'obtenir le nom d'un format audio
+	 * @param format Format audio (cf. #AudioDataFormat)
 	 * @return Chaîne de caractère constante (type C)
 	 */
 	static const char* formatName(AudioDataFormat format) noexcept
 		__attribute__((pure));
 	/**
-	 * @brief Permet d'obtenir le nombre de canaux d'un format audio (mono, stereo...)
-	 * @param format Format audio dont on veux obtenir le nombre de canaux (cf. #AudioDataFormat)
+	 * @brief Permet d'obtenir le nombre de canaux d'un format (mono, stereo...)
+	 * @param format Format audio (cf. #AudioDataFormat)
 	 * @return Nombre de canaux du format (sous forme d'un entier)
 	 */
-	static uint16_t formatChannels(AudioDataFormat format) noexcept
+	static std::uint16_t formatChannels(AudioDataFormat format) noexcept
 		__attribute__((pure));
 	/**
-	 * @brief Permet d'obtenir le nombre d'octets par échantillon et par canal d'un format audio
-	 * @param format Format audio dont on veux obtenir cet information (cf. #AudioDataFormat)
+	 * @brief Permet d'obtenir le nombre d'octets par échantillon et par canal
+	 * @param format Format audio (cf. #AudioDataFormat)
 	 * @return Nombre d'octet (sous forme d'un entier)
 	 */
-	static uint16_t formatBytesPerSample(AudioDataFormat format) noexcept
+	static std::uint16_t formatBytesPerSample(AudioDataFormat format) noexcept
 		__attribute__((pure));
 	/**
-	 * @brief Permet d'obtenir le nombre d'octets par échantillon d'un format audio
-	 * @param format Format audio dont on veux obtenir cet information (cf. #AudioDataFormat)
+	 * @brief Permet d'obtenir le nombre d'octets par échantillon d'un format
+	 * @param format Format audio (cf. #AudioDataFormat)
 	 * @return Nombre d'octet (sous forme d'un entier)
 	 */
-	static uint16_t formatPitch(AudioDataFormat format) noexcept
+	static std::uint16_t formatPitch(AudioDataFormat format) noexcept
 		__attribute__((pure));
 	/**
-	 * @brief Permet d'obtenir le format audio correspondant à un nombre de canaux et d'octets par échantillon et par canaux
+	 * @brief Permet d'obtenir le format audio correspondant
+	 * Permet d'obtenir le format audio correspondant à
+	 * un nombre de canaux
+	 * et un nombre d'octets par échantillon et par canaux
 	 * @param channels Nombre de canaux
 	 * @param bytesPerSample Nombre d'octets par échantillon et par canaux
-	 * @return Le format audio (cf. #AudioDataFormat) correspondant au deux paramètre donnés
+	 * @return Format audio (cf. #AudioDataFormat) correspondant aux paramètre
 	 */
 	static AudioDataFormat
-	formatFromPerSample(uint16_t channels, uint16_t bytesPerSample) noexcept
-		__attribute__((pure));
+	formatFromPerSample(std::uint16_t channels, std::uint16_t bytesPerSample)
+		noexcept __attribute__((pure));
 
 public:
 	AudioData(AudioData& other) noexcept = delete; //!< Copie interdite
-	const AudioData& operator=(AudioData& other) noexcept = delete; //!< Copie interdite
+	//! Copie interdite
+	const AudioData& operator=(AudioData& other) noexcept = delete;
 	/**
 	 * @brief Permet de charger des données audio à partir d'un tableau d'octet
 	 * @param tblData Données brutes
@@ -96,12 +105,12 @@ public:
 	 * @param freq Fréquence d'échantillonage des données
 	 * @return Pointeur alloué dynamiquement (avec new) vers le buffer de donnée
 	 */
-	static AudioData* fromData(const std::vector<uint8_t>& tblData,
-	                           AudioDataFormat format, int32_t freq);
+	static AudioData* fromData(const std::vector<std::uint8_t>& tblData,
+	                           AudioDataFormat format, std::int32_t freq);
 
 	/**
-	 * @brief Permet de charger des données audio à partir d'un fichier wav
-	 * @param file Fichier (qui sera ouvert s'il ne l'est pas déjà) où se trouve l'image
+	 * @brief Permet de charger des données audio à partir d'un contenue wav
+	 * @param file Flux contenant le fichier audio
 	 * @return Pointeur alloué dynamiquement (avec new) vers le buffer de donnée
 	 */
 	static AudioData* fromWav(std::iostream& file);
@@ -118,10 +127,13 @@ public:
 	AudioDataPrivate* data() noexcept;
 
 private:
-	AudioData(AudioDataPrivate* pData) noexcept; //!< Constructeur privée, utiliser fromData, fromWav, fromOgg...
+	//! Constructeur privée, utiliser fromData, fromWav, fromOgg...
+	AudioData(AudioDataPrivate* pData) noexcept;
 
 private:
 	AudioDataPrivate* m_pData;
 };
+
+} // namespace KA3D
 
 #endif // AUDIODATA_H_INCLUDED

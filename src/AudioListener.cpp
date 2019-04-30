@@ -28,13 +28,19 @@
 #include "AudioListener.h"
 
 #include <cstring>
+#include <list>
 #include <sstream>
+#include <string>
+#include <stdexcept>
 
 #include <AL/al.h>
 #include <AL/alc.h>
 
 #include "AudioContext.h"
 #include "Error.h"
+
+namespace KA3D
+{
 
 struct
 {
@@ -52,12 +58,31 @@ struct
 	"DM_LAST", AL_INVALID
 };
 
+ALint tblContextAttributes[] = {
+	ALC_FREQUENCY,
+	ALC_REFRESH,
+	ALC_SYNC,
+	ALC_MONO_SOURCES,
+	ALC_STEREO_SOURCES
+};
+
+const int CONTEXT_ATTRIBUTES_COUNT = 5;
+
+AudioListener* AudioListener::pCurrent(nullptr);
+
 AudioListener::AudioListener(const char* deviceName):
-	m_pData(new AudioContext(deviceName))
+	m_pData(new AudioContext(deviceName)),
+	m_tblAttrib(nullptr)
 { }
 
 AudioListener::~AudioListener() noexcept
 {
+	if(m_tblAttrib)
+	{
+		for(int i=0; i<CONTEXT_ATTRIBUTES_COUNT; ++i)
+			delete m_tblAttrib[i];
+	}
+	delete[] m_tblAttrib;
 	delete m_pData;
 }
 
@@ -65,7 +90,42 @@ void AudioListener::Init()
 {
 	try
 	{
-		m_pData->Init();
+		if(m_tblAttrib)
+		{
+			// Comptage des attributs
+			int nbAttr(0);
+			for(int i=0; i<CONTEXT_ATTRIBUTES_COUNT; ++i)
+				if(m_tblAttrib[i])
+					++nbAttr;
+
+			// Allocation de la nouvelle structure (clé+valeur)
+			int* attrib = new int[2*nbAttr];
+
+			// Copie dans la nouvelle structure
+			int num(0);
+			for(int i=0; i<CONTEXT_ATTRIBUTES_COUNT; ++i)
+			{
+				if(m_tblAttrib[i])
+				{
+					attrib[num++] = tblContextAttributes[i];
+					attrib[num++] = *m_tblAttrib[i];
+				}
+			}
+
+			m_pData->Init(attrib);
+
+			// Suppression des deux structures
+			delete[] attrib;
+			for(int i=0; i<CONTEXT_ATTRIBUTES_COUNT; ++i)
+				delete m_tblAttrib[i];
+			delete[] m_tblAttrib;
+		}
+		else
+		{
+			m_pData->Init(nullptr);
+		}
+		m_pData->makeCurrent();
+		pCurrent = this;
 	}
 	catch(std::exception& e)
 	{
@@ -79,6 +139,8 @@ void AudioListener::Quit()
 {
 	try
 	{
+		if(this == pCurrent)
+			m_pData->clearCurrent();
 		m_pData->Quit();
 	}
 	catch(std::exception& e)
@@ -87,6 +149,116 @@ void AudioListener::Quit()
 		msg << "Unable to release audio listener: " << e.what();
 		throw std::runtime_error(msg.str());
 	}
+}
+
+std::list<std::string> AudioListener::devices()
+{
+	std::list<std::string> lstDevices;
+	const ALCchar* str = alcGetString(NULL, ALC_DEVICE_SPECIFIER);
+	while(*str)
+	{
+		std::string dev(str);
+		str += dev.size();
+
+		lstDevices.push_back(std::move(dev));
+
+		++str;
+	}
+	return lstDevices;
+}
+
+std::string AudioListener::defaultDevice()
+{
+	return std::string(alcGetString(NULL, ALC_DEFAULT_DEVICE_SPECIFIER));
+}
+
+std::string AudioListener::device() const
+{
+	return std::string(alcGetString(m_pData->device(), ALC_DEVICE_SPECIFIER));
+}
+
+void AudioListener::setFrequency(int iFrequency)
+{
+	if(!m_tblAttrib)
+		m_tblAttrib = new int*[CONTEXT_ATTRIBUTES_COUNT];
+	if(!m_tblAttrib[0])
+		m_tblAttrib[0] = new int(iFrequency);
+	else
+		*m_tblAttrib[0] = iFrequency;
+}
+
+void AudioListener::setRefresh(int iRefresh)
+{
+	if(!m_tblAttrib)
+		m_tblAttrib = new int*[CONTEXT_ATTRIBUTES_COUNT];
+	if(!m_tblAttrib[1])
+		m_tblAttrib[1] = new int(iRefresh);
+	else
+		*m_tblAttrib[1] = iRefresh;
+}
+
+void AudioListener::setSync(bool isSync)
+{
+	if(!m_tblAttrib)
+		m_tblAttrib = new int*[CONTEXT_ATTRIBUTES_COUNT];
+	if(!m_tblAttrib[2])
+		m_tblAttrib[2] = new int(isSync ? AL_TRUE : AL_FALSE);
+	else
+		*m_tblAttrib[2] = (isSync ? AL_TRUE : AL_FALSE);
+}
+
+void AudioListener::setMonoSource(int iMonoSource)
+{
+	if(!m_tblAttrib)
+		m_tblAttrib = new int*[CONTEXT_ATTRIBUTES_COUNT];
+	if(!m_tblAttrib[3])
+		m_tblAttrib[3] = new int(iMonoSource);
+	else
+		*m_tblAttrib[3] = iMonoSource;
+}
+
+void AudioListener::setStereoSource(int iStereoSource)
+{
+	if(!m_tblAttrib)
+		m_tblAttrib = new int*[CONTEXT_ATTRIBUTES_COUNT];
+	if(!m_tblAttrib[4])
+		m_tblAttrib[4] = new int(iStereoSource);
+	else
+		*m_tblAttrib[4] = iStereoSource;
+}
+
+void AudioListener::makeCurrent(bool enable)
+{
+	if(enable)
+		m_pData->makeCurrent();
+	else
+		if(isCurrent())
+			m_pData->clearCurrent();
+}
+
+void AudioListener::clearCurrent()
+{
+	AudioContext::clearCurrent();
+}
+
+void AudioListener::suspend()
+{
+	m_pData->suspend();
+}
+
+void AudioListener::process()
+{
+	m_pData->process();
+}
+
+bool AudioListener::isCurrent() const noexcept
+{
+	return (pCurrent == this);
+}
+
+AudioListener* AudioListener::current() noexcept
+{
+	return pCurrent;
 }
 
 void AudioListener::setGain(float gain)
@@ -205,3 +377,5 @@ DistanceModel AudioListener::distanceModel() const
 		return DM_LAST;
 	}
 }
+
+} // namespace KA3D

@@ -98,46 +98,46 @@
 #  endif // BIG_ENDIAN condition
 
 #  if defined(__GNUC__) && defined(__i386__) && !(__GNUC__ == 2 && __GNUC_MINOR__ == 95) // Proc tests
-static inline void Swap16(uint16_t& x) noexcept
+static inline void Swap16(std::uint16_t& x) noexcept
 {
 	__asm__("xchgb %b0,%h0": "=q"(x):"0"(x));
 }
 #  elif defined(__GNUC__) && defined(__x86_64__) // Proc tests
-static inline void Swap16(uint16_t& x) noexcept
+static inline void Swap16(std::uint16_t& x) noexcept
 {
 	__asm__("xchgb %b0,%h0": "=Q"(x):"0"(x));
 }
 #  elif defined(__GNUC__) && (defined(__powerpc__) || defined(__ppc__)) // Proc tests
-static inline void Swap16(uint16_t& x) noexcept
+static inline void Swap16(std::uint16_t& x) noexcept
 {
 	__asm__("rlwimi %0,%2,8,16,23": "=&r"(x):"0"(x >> 8), "r"(x));
 }
 #  elif defined(__GNUC__) && (defined(__M68000__) || defined(__M68020__)) && !defined(__mcoldfire__) // Proc tests
-static inline void Swap16(uint16_t& x) noexcept
+static inline void Swap16(std::uint16_t& x) noexcept
 {
 	__asm__("rorw #8,%0": "=d"(x): "0"(x):"cc");
 }
 #  else
-static inline void Swap16(uint16_t& x) noexcept
+static inline void Swap16(std::uint16_t& x) noexcept
 {
-    x = static_cast<uint16_t>((x << 8) | (x >> 8));
+    x = static_cast<std::uint16_t>((x << 8) | (x >> 8));
 }
 #  endif
 
 #  if defined(__GNUC__) && defined(__i386__) // Proc tests
-static inline void Swap32(uint32_t& x) noexcept
+static inline void Swap32(std::uint32_t& x) noexcept
 {
 	__asm__("bswap %0": "=r"(x):"0"(x));
 }
 #  elif defined(__GNUC__) && defined(__x86_64__) // Proc tests
-static inline void Swap32(uint32_t& x) noexcept
+static inline void Swap32(std::uint32_t& x) noexcept
 {
 	__asm__("bswapl %0": "=r"(x):"0"(x));
 }
 #  elif defined(__GNUC__) && (defined(__powerpc__) || defined(__ppc__)) // Proc tests
-static inline void Swap32(uint32_t& x) noexcept
+static inline void Swap32(std::uint32_t& x) noexcept
 {
-    uint32_t result;
+    std::uint32_t result;
 
 	__asm__("rlwimi %0,%2,24,16,23": "=&r"(result):"0"(x >> 24), "r"(x));
 	__asm__("rlwimi %0,%2,8,8,15": "=&r"(result):"0"(result), "r"(x));
@@ -145,44 +145,44 @@ static inline void Swap32(uint32_t& x) noexcept
     x = result;
 }
 #  elif defined(__GNUC__) && (defined(__M68000__) || defined(__M68020__)) && !defined(__mcoldfire__) // Proc tests
-static inline void Swap32(uint32_t& x) noexcept
+static inline void Swap32(std::uint32_t& x) noexcept
 {
 	__asm__("rorw #8,%0\n\tswap %0\n\trorw #8,%0": "=d"(x): "0"(x):"cc");
 }
 #  else // Proc tests
-static inline uint32_t Swap32(uint32_t x) noexcept
+static inline std::uint32_t Swap32(std::uint32_t x) noexcept
 {
-    x = static_cast<uint32_t>((x << 24) | ((x << 8) & 0x00FF0000) | ((x >> 8) & 0x0000FF00) | (x >> 24));
+    x = static_cast<std::uint32_t>((x << 24) | ((x << 8) & 0x00FF0000) | ((x >> 8) & 0x0000FF00) | (x >> 24));
 }
 #  endif // Proc tests
 
 #  if defined(__GNUC__) && defined(__i386__) // Proc tests
-static inline uint64_t Swap64(uint64_t x) noexcept
+static inline std::uint64_t Swap64(std::uint64_t x) noexcept
 {
     union U64T32
     {
         struct
         {
-            uint32_t a, b;
+            std::uint32_t a, b;
         } s;
-        uint64_t u;
+        std::uint64_t u;
     }& v(reinterpret_cast<U64T32&>(x));
 	__asm__("bswapl %0 ; bswapl %1 ; xchgl %0,%1": "=r"(v.s.a), "=r"(v.s.b):"0"(v.s.a), "1"(v.s.b));
 }
 #  elif defined(__GNUC__) && defined(__x86_64__) // Proc tests
-static inline void Swap64(uint64_t& x) noexcept
+static inline void Swap64(std::uint64_t& x) noexcept
 {
 	__asm__("bswapq %0": "=r"(x):"0"(x));
 }
 #  else // Proc tests
-static inline void Swap64(uint64_t& x) noexcept
+static inline void Swap64(std::uint64_t& x) noexcept
 {
-    uint32_t hi, lo;
+    std::uint32_t hi, lo;
 
     /* Separate into high and low 32-bit values and swap them */
-    lo = static_cast<uint32_t>(x & 0xFFFFFFFF);
+    lo = static_cast<std::uint32_t>(x & 0xFFFFFFFF);
     x >>= 32;
-    hi = static_cast<uint32_t>(x & 0xFFFFFFFF);
+    hi = static_cast<std::uint32_t>(x & 0xFFFFFFFF);
     x = Swap32(lo);
     x <<= 32;
     x |= Swap32(hi);
@@ -195,173 +195,173 @@ static inline void Swap64(uint64_t& x) noexcept
  * @{
  */
 
-static inline void htobe(uint16_t& v) noexcept
+static inline void htobe(std::uint16_t& v) noexcept
 {
 	htobe16convert(v);
 }
-static inline void betoh(uint16_t& v) noexcept
+static inline void betoh(std::uint16_t& v) noexcept
 {
 	betoh16convert(v);
 }
 
-static inline void htobe(uint32_t& v) noexcept
+static inline void htobe(std::uint32_t& v) noexcept
 {
 	htobe32convert(v);
 }
-static inline void betoh(uint32_t& v) noexcept
+static inline void betoh(std::uint32_t& v) noexcept
 {
 	betoh32convert(v);
 }
 
-static inline void htobe(uint64_t& v) noexcept
+static inline void htobe(std::uint64_t& v) noexcept
 {
 	htobe64convert(v);
 }
-static inline void betoh(uint64_t& v) noexcept
+static inline void betoh(std::uint64_t& v) noexcept
 {
 	betoh64convert(v);
 }
 
 
-static inline void htobe(int16_t& v) noexcept
+static inline void htobe(std::int16_t& v) noexcept
 {
-	uint16_t& uv(reinterpret_cast<uint16_t&>(v));
+	std::uint16_t& uv(reinterpret_cast<std::uint16_t&>(v));
 	htobe16convert(uv);
 }
-static inline void betoh(int16_t& v) noexcept
+static inline void betoh(std::int16_t& v) noexcept
 {
-	uint16_t& uv(reinterpret_cast<uint16_t&>(v));
+	std::uint16_t& uv(reinterpret_cast<std::uint16_t&>(v));
 	betoh16convert(uv);
 }
 
-static inline void htobe(int32_t& v) noexcept
+static inline void htobe(std::int32_t& v) noexcept
 {
-	uint32_t& uv(reinterpret_cast<uint32_t&>(v));
+	std::uint32_t& uv(reinterpret_cast<std::uint32_t&>(v));
 	htobe32convert(uv);
 }
-static inline void betoh(int32_t& v) noexcept
+static inline void betoh(std::int32_t& v) noexcept
 {
-	uint32_t& uv(reinterpret_cast<uint32_t&>(v));
+	std::uint32_t& uv(reinterpret_cast<std::uint32_t&>(v));
 	betoh32convert(uv);
 }
 
-static inline void htobe(int64_t& v) noexcept
+static inline void htobe(std::int64_t& v) noexcept
 {
-	uint64_t& uv(reinterpret_cast<uint64_t&>(v));
+	std::uint64_t& uv(reinterpret_cast<std::uint64_t&>(v));
 	htobe64convert(uv);
 }
-static inline void betoh(int64_t& v) noexcept
+static inline void betoh(std::int64_t& v) noexcept
 {
-	uint64_t& uv(reinterpret_cast<uint64_t&>(v));
+	std::uint64_t& uv(reinterpret_cast<std::uint64_t&>(v));
 	betoh64convert(uv);
 }
 
 
 static inline void htobe(float& v) noexcept
 {
-	uint32_t& uv(reinterpret_cast<uint32_t&>(v));
+	std::uint32_t& uv(reinterpret_cast<std::uint32_t&>(v));
 	htobe32convert(uv);
 }
 static inline void betoh(float& v) noexcept
 {
-	uint32_t& uv(reinterpret_cast<uint32_t&>(v));
+	std::uint32_t& uv(reinterpret_cast<std::uint32_t&>(v));
 	betoh32convert(uv);
 }
 
 static inline void htobe(double& v) noexcept
 {
-	uint64_t& uv(reinterpret_cast<uint64_t&>(v));
+	std::uint64_t& uv(reinterpret_cast<std::uint64_t&>(v));
 	htobe64convert(uv);
 }
 static inline void betoh(double& v) noexcept
 {
-	uint64_t& uv(reinterpret_cast<uint64_t&>(v));
+	std::uint64_t& uv(reinterpret_cast<std::uint64_t&>(v));
 	betoh64convert(uv);
 }
 
 
 
-static inline void htole(uint16_t& v) noexcept
+static inline void htole(std::uint16_t& v) noexcept
 {
 	htole16convert(v);
 }
-static inline void letoh(uint16_t& v) noexcept
+static inline void letoh(std::uint16_t& v) noexcept
 {
 	letoh16convert(v);
 }
 
-static inline void htole(uint32_t& v) noexcept
+static inline void htole(std::uint32_t& v) noexcept
 {
 	htole32convert(v);
 }
-static inline void letoh(uint32_t& v) noexcept
+static inline void letoh(std::uint32_t& v) noexcept
 {
 	letoh32convert(v);
 }
 
-static inline void htole(uint64_t& v) noexcept
+static inline void htole(std::uint64_t& v) noexcept
 {
 	htole64convert(v);
 }
-static inline void letoh(uint64_t& v) noexcept
+static inline void letoh(std::uint64_t& v) noexcept
 {
 	letoh64convert(v);
 }
 
 
-static inline void htole(int16_t& v) noexcept
+static inline void htole(std::int16_t& v) noexcept
 {
-	uint16_t& uv(reinterpret_cast<uint16_t&>(v));
+	std::uint16_t& uv(reinterpret_cast<std::uint16_t&>(v));
 	htole16convert(uv);
 }
-static inline void letoh(int16_t& v) noexcept
+static inline void letoh(std::int16_t& v) noexcept
 {
-	uint16_t& uv(reinterpret_cast<uint16_t&>(v));
+	std::uint16_t& uv(reinterpret_cast<std::uint16_t&>(v));
 	letoh16convert(uv);
 }
 
-static inline void htole(int32_t& v) noexcept
+static inline void htole(std::int32_t& v) noexcept
 {
-	uint32_t& uv(reinterpret_cast<uint32_t&>(v));
+	std::uint32_t& uv(reinterpret_cast<std::uint32_t&>(v));
 	htole32convert(uv);
 }
-static inline void letoh(int32_t& v) noexcept
+static inline void letoh(std::int32_t& v) noexcept
 {
-	uint32_t& uv(reinterpret_cast<uint32_t&>(v));
+	std::uint32_t& uv(reinterpret_cast<std::uint32_t&>(v));
 	letoh32convert(uv);
 }
 
-static inline void htole(int64_t& v) noexcept
+static inline void htole(std::int64_t& v) noexcept
 {
-	uint64_t& uv(reinterpret_cast<uint64_t&>(v));
+	std::uint64_t& uv(reinterpret_cast<std::uint64_t&>(v));
 	htole64convert(uv);
 }
-static inline void letoh(int64_t& v) noexcept
+static inline void letoh(std::int64_t& v) noexcept
 {
-	uint64_t& uv(reinterpret_cast<uint64_t&>(v));
+	std::uint64_t& uv(reinterpret_cast<std::uint64_t&>(v));
 	letoh64convert(uv);
 }
 
 
 static inline void htole(float& v) noexcept
 {
-	uint32_t& uv(reinterpret_cast<uint32_t&>(v));
+	std::uint32_t& uv(reinterpret_cast<std::uint32_t&>(v));
 	htole32convert(uv);
 }
 static inline void letoh(float& v) noexcept
 {
-	uint32_t& uv(reinterpret_cast<uint32_t&>(v));
+	std::uint32_t& uv(reinterpret_cast<std::uint32_t&>(v));
 	letoh32convert(uv);
 }
 
 static inline void htole(double& v) noexcept
 {
-	uint64_t& uv(reinterpret_cast<uint64_t&>(v));
+	std::uint64_t& uv(reinterpret_cast<std::uint64_t&>(v));
 	htole64convert(uv);
 }
 static inline void letoh(double& v) noexcept
 {
-	uint64_t& uv(reinterpret_cast<uint64_t&>(v));
+	std::uint64_t& uv(reinterpret_cast<std::uint64_t&>(v));
 	letoh64convert(uv);
 }
 

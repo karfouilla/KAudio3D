@@ -29,21 +29,27 @@
 
 
 #include <AL/al.h>
-#include <AL/alc.h>
+
 
 #include <cassert>
+#include <cstdint>
 
 #include <sstream>
+#include <stdexcept>
+#include <vector>
+
 
 #include "AudioDataPrivate.h"
 #include "Error.h"
 #include "WaveFile.h"
 
+namespace KA3D
+{
 
 static const struct
 {
 	const char* name;
-	uint16_t channels, bytesPerSample;
+	std::uint16_t channels, bytesPerSample;
 	ALenum format;
 } tblAudioFormat[] = {
 	"ADF_MONO8", 1, 1, AL_FORMAT_MONO8,
@@ -57,8 +63,8 @@ static const struct
 static inline ALenum audioDataFormatConvert(AudioDataFormat format);
 
 
-AudioData* AudioData::fromData(const std::vector<uint8_t>& tblData,
-                               AudioDataFormat format, int32_t freq)
+AudioData* AudioData::fromData(const std::vector<std::uint8_t>& tblData,
+                               AudioDataFormat format, std::int32_t freq)
 {
 	AudioDataPrivate* privateData(new AudioDataPrivate);
 	try
@@ -84,9 +90,9 @@ AudioData* AudioData::fromData(const std::vector<uint8_t>& tblData,
 
 AudioData* AudioData::fromWav(std::iostream& file)
 {
-	std::vector<uint8_t> tblData;
+	std::vector<std::uint8_t> tblData;
 	AudioDataFormat format;
-	uint32_t freq;
+	std::uint32_t freq;
 
 	WaveFile waveFile(file);
 	waveFile.open(std::ios_base::in);
@@ -122,24 +128,25 @@ const char* AudioData::formatName(AudioDataFormat format) noexcept
 	return tblAudioFormat[format].name;
 }
 
-uint16_t AudioData::formatChannels(AudioDataFormat format) noexcept
+std::uint16_t AudioData::formatChannels(AudioDataFormat format) noexcept
 {
 	assert(format < ADF_LAST);
 	return tblAudioFormat[format].channels;
 }
 
-uint16_t AudioData::formatBytesPerSample(AudioDataFormat format) noexcept
+std::uint16_t AudioData::formatBytesPerSample(AudioDataFormat format) noexcept
 {
 	assert(format < ADF_LAST);
 	return tblAudioFormat[format].bytesPerSample;
 }
 
-uint16_t AudioData::formatPitch(AudioDataFormat format) noexcept
+std::uint16_t AudioData::formatPitch(AudioDataFormat format) noexcept
 {
 	return formatChannels(format) * formatBytesPerSample(format);
 }
-AudioDataFormat AudioData::formatFromPerSample(uint16_t channels,
-                                               uint16_t bytesPerSample) noexcept
+AudioDataFormat
+AudioData::formatFromPerSample(std::uint16_t channels,
+                               std::uint16_t bytesPerSample) noexcept
 {
 	if(channels == 1 && bytesPerSample == 1)
 		return ADF_MONO8;
@@ -157,3 +164,5 @@ static inline ALenum audioDataFormatConvert(AudioDataFormat format)
 	assert(format < ADF_LAST);
 	return tblAudioFormat[format].format;
 }
+
+} // namespace KA3D

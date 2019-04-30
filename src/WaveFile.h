@@ -32,6 +32,8 @@
 
 #include "AudioData.h"
 
+namespace KA3D
+{
 
 /**
  * Classe de gestion des fichiers .wav (RIFF/WAVE)
@@ -72,14 +74,16 @@ public:
 	 * SEEK_END	fin du fichier
 	 * @return La nouvelle position dans les données audio
 	 */
-	virtual int64_t seek(int64_t offset, std::ios_base::seekdir whence);
+	virtual std::int64_t seek(std::int64_t offset,
+	                          std::ios_base::seekdir whence);
 	/**
 	 * @brief Permet de lire les données audio du wave (au format #format)
 	 * @param[out] data Variable dans laquelle on stocke les données lu
 	 * @param[in] size Taille des données à lire en octets
 	 * @return Taille des données lu en octets
 	 */
-	virtual uint64_t read(void* data, uint64_t size) __attribute__((nonnull));
+	virtual std::uint64_t read(void* data, std::uint64_t size)
+		__attribute__((nonnull));
 	/**
 	 * @brief Permet d'écrire les données audio du wave
 	 * Le total des données ajouté dans le fichier ne doit pas dépasser
@@ -87,7 +91,8 @@ public:
 	 * @param data Données audio à écrire (voir #format pour le format)
 	 * @param size Taille des données à écrire
 	 */
-	virtual void write(const void* data, uint64_t size) __attribute__((nonnull));
+	virtual void write(const void* data, std::uint64_t size)
+		__attribute__((nonnull));
 	/**
 	 * @brief Permet de fermet le fichier wave
 	 * Si le flux de fichier doit être fermé, il sera fermé,
@@ -98,60 +103,62 @@ public:
 
 	//! Permet de définir la fréquence d'échantillonage
 	//! (à définir en mode écriteur et avant ouverture du fichier)
-	void setSamplesPerSec(uint32_t dwSamplesPerSec) noexcept;
+	void setSamplesPerSec(std::uint32_t dwSamplesPerSec) noexcept;
 	//! Permet de définir le format des données audio (cf. #AudioDataFormat)
 	//! (à définir en mode écriteur et avant ouverture du fichier)
 	void setFormat(AudioDataFormat format) noexcept;
 	//! Permet de définir la taille des données audio en octets
 	//! (à définir en mode écriteur et avant ouverture du fichier)
-	void setSize(uint32_t dwSize) noexcept;
+	void setSize(std::uint32_t dwSize) noexcept;
 	//! Permet d'obtenir la fréquence d'échantillonage
 	//! (disponible après ouverture en mode lecture)
-	uint32_t samplesPerSec() const noexcept;
+	std::uint32_t samplesPerSec() const noexcept;
 	//! Permet d'obtenir le format des données audio
 	//! (disponible après ouverture en mode lecture)
 	AudioDataFormat format() const noexcept;
 	//! Permet d'obtenir la taille (en octets) données audio
 	//! (disponible après ouverture en mode lecture)
-	uint32_t size() const noexcept;
+	std::uint32_t size() const noexcept;
 
 private:
-	void rawRead(void* data, uint64_t size, uint64_t n = 1);
-	void rawWrite(const void* data, uint64_t size, uint64_t n = 1);
+	void rawRead(void* data, std::uint64_t size, std::uint64_t n = 1);
+	void rawWrite(const void* data, std::uint64_t size, std::uint64_t n = 1);
 
 
 	void readHeaders();
 
-	void skipRead(uint32_t size);
+	void skipRead(std::uint32_t size);
 	void skipWord();
 
-	void readWord(uint16_t& word);
-	void readDWord(uint32_t& dword);
+	void readWord(std::uint16_t& word);
+	void readDWord(std::uint32_t& dword);
 
-	void readChunk(uint8_t* chunk);
-	void checkChunk(const uint8_t* chunk);
+	void readChunk(std::uint8_t* chunk);
+	void checkChunk(const std::uint8_t* chunk);
 
-	void nextChunk(uint8_t* chunk, uint32_t& cksz);
-	void checkNextChunk(const uint8_t* chunk, uint32_t& cksz);
-	void findNextChunk(const uint8_t* chunk, uint32_t& cksz);
+	void nextChunk(std::uint8_t* chunk, std::uint32_t& cksz);
+	void checkNextChunk(const std::uint8_t* chunk, std::uint32_t& cksz);
+	void findNextChunk(const std::uint8_t* chunk, std::uint32_t& cksz);
 
 
 	void writeHeaders();
 
-	void writeWord(uint16_t word);
-	void writeDWord(uint32_t dword);
+	void writeWord(std::uint16_t word);
+	void writeDWord(std::uint32_t dword);
 
-	void writeChunk(const uint8_t* chunk);
-	void writeChunk(const uint8_t* chunk, uint32_t cksz);
+	void writeChunk(const std::uint8_t* chunk);
+	void writeChunk(const std::uint8_t* chunk, std::uint32_t cksz);
 
 private:
 	std::iostream& m_refFile; //!< Flux du wave
-	uint32_t m_uFileSize; //!< Taille du flux RIFF/WAVE
-	uint32_t m_uFileRemaining; //!< Nombre d'octets restant (à lire ou écrire)
-	uint32_t m_uSamplesPerSec; //!< Fréquence d'échantillonage de l'audio
+	std::uint32_t m_uFileSize; //!< Taille du flux RIFF/WAVE
+	std::uint32_t m_uFileRemaining; //!< Nombre d'octets restant (à lire/écrire)
+	std::uint32_t m_uSamplesPerSec; //!< Fréquence d'échantillonage de l'audio
 	AudioDataFormat m_format; //!< Format des données audio
-	uint32_t m_uSize; //!< Taille (en octets) des données audio
-	uint32_t m_uRemaining; //!< Nombre d'octets restant (à lire ou écrire)
+	std::uint32_t m_uSize; //!< Taille (en octets) des données audio
+	std::uint32_t m_uRemaining; //!< Nombre d'octets restant (à lire ou écrire)
 };
+
+} // namespace KA3D
 
 #endif // WAVFILE_H_INCLUDED

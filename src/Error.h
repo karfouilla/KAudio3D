@@ -27,11 +27,14 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+#include <stdexcept>
+
 #include <AL/al.h>
+#include <AL/alc.h>
 
 #define ALIBTESTERR(ERRAL) case ERRAL: return #ERRAL
 
-inline std::string alErrorString(ALenum error)
+static inline std::string alErrorString(ALenum error)
 {
 	switch(error)
 	{
@@ -45,14 +48,14 @@ inline std::string alErrorString(ALenum error)
 	}
 }
 
-inline void checkALError()
+static inline void checkALError()
 {
 	ALenum error(alGetError());
 	if(error != AL_NO_ERROR)
 		throw std::runtime_error(alErrorString(error));
 }
 
-inline std::string alcErrorString(ALCenum error)
+static inline std::string alcErrorString(ALCenum error)
 {
 	switch(error)
 	{
@@ -66,7 +69,7 @@ inline std::string alcErrorString(ALCenum error)
 	}
 }
 
-inline void checkALCError(ALCdevice* device)
+static inline void checkALCError(ALCdevice* device)
 {
 	ALCenum error(alcGetError(device));
 	if(error != ALC_NO_ERROR)
