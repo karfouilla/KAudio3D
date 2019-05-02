@@ -72,6 +72,7 @@ void Source::Quit()
 	{
 		alDeleteSources(1, &m_pSource->handle);
 		checkALError();
+		m_pData = nullptr;
 	}
 	catch(std::exception& e)
 	{
@@ -79,6 +80,11 @@ void Source::Quit()
 		msg << "Unable to quit audio source: " << e.what();
 		throw std::runtime_error(msg.str());
 	}
+}
+
+bool Source::isInitialized() const noexcept
+{
+	return m_pData;
 }
 
 void Source::play()

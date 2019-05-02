@@ -62,6 +62,11 @@ public:
 	void Init(Data* pData);
 
 	/**
+	 * @brief Permet de savoir si la source a été initialisée
+	 */
+	bool isInitialized() const noexcept;
+
+	/**
 	 * @brief Permet de libérer la mémoire initialisé par #Init
 	 * @note Ne libère pas la mémoire de #AudioData en paramètre de #Init
 	 */
