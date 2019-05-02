@@ -73,6 +73,11 @@ void Sound::setWav(std::iostream& file)
 	m_removeData = true;
 }
 
+void Sound::setConfig(SourceConfigure* pConfig)
+{
+	m_pConfig = pConfig;
+}
+
 void Sound::Init(bool forceLoad)
 {
 	assert(m_pData);
@@ -90,7 +95,7 @@ void Sound::loadSource(SoundInstance instance)
 {
 	m_tblSources[instance].Init(m_pData);
 	if(m_pConfig)
-		(*m_pConfig)(instance, m_tblSources);
+		(*m_pConfig)(m_tblSources);
 }
 
 void Sound::Quit()
@@ -108,9 +113,7 @@ void Sound::play()
 {
 	if(!m_tblSources[m_uCurrent].isInitialized())
 	{
-		m_tblSources[m_uCurrent].Init(m_pData);
-		if(m_pConfig)
-			(*m_pConfig)(m_uCurrent, m_tblSources);
+		loadSource(m_uCurrent);
 	}
 	m_tblSources[m_uCurrent].play();
 	++m_uCurrent;

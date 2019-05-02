@@ -47,10 +47,9 @@ public:
 	virtual ~SourceConfigure() noexcept { }
 	/**
 	 * @brief Fonction de configuration à redéfinir
-	 * @param instance Numéro d'instance (maybe @REMOVEME)
 	 * @param pSource Source à configurer
 	 */
-	virtual void operator()(SoundInstance instance, Source* pSource) = 0;
+	virtual void operator()(Source* pSource) = 0;
 };
 
 /**
@@ -96,6 +95,12 @@ public:
 	void setData(Data* pData, bool removeData) noexcept;
 
 	/**
+	 * @brief Permet de définir la configuration de la source du son
+	 * @param pConfig Configuration de la source du son
+	 */
+	void setConfig(SourceConfigure* pConfig);
+
+	/**
 	 * @brief Permet de définir les données à partir d'un flux en wav
 	 * @param file Flux à lire
 	 */
@@ -118,15 +123,19 @@ public:
 	void Quit();
 
 protected:
+	/**
+	 * @brief Permet de charger l'instance d'une source
+	 * @param instance Numéro d'instance
+	 */
 	void loadSource(SoundInstance instance);
 
 private:
-	Source* m_tblSources;
-	Data* m_pData;
-	SourceConfigure* m_pConfig;
-	uint32_t m_uInstanceMax;
-	SoundInstance m_uCurrent;
-	bool m_removeData;
+	Source* m_tblSources; //!< Tableau des sources
+	Data* m_pData; //!< Données audio
+	SourceConfigure* m_pConfig; //!< Configurateur de la source
+	uint32_t m_uInstanceMax; //!< Nombre d'instance simultanée maximum
+	SoundInstance m_uCurrent; //!< Prochaine instance
+	bool m_removeData; //!< Est-ce qu'on supprimer les données audio
 };
 
 }
