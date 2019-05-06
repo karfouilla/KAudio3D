@@ -32,6 +32,12 @@
 
 #include "Data.h"
 
+#ifndef __GNUC__
+#ifndef __clang__
+#  define __attribute__(X)
+#endif
+#endif
+
 namespace KA3D
 {
 
@@ -46,7 +52,7 @@ public:
 	 * @param pFile fichier à ouvrir (peut être une portion de fichier)
 	 * @param isClose Est-ce qu'on ferme le fichier à la fin (lors de close)
 	 */
-	WaveFile(std::iostream& refFile) noexcept __attribute__((nonnull));
+	WaveFile(std::iostream& refFile) noexcept;
 
 	//! Copie interdite
 	WaveFile(const WaveFile& other) noexcept = delete;

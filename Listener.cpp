@@ -25,7 +25,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "Listener.h"
+#include "KA3D/Listener.h"
 
 #include <cstring>
 #include <list>
@@ -47,15 +47,15 @@ struct
 	const char* name;
 	ALenum alValue;
 } tblDistanceModel[] = {
-	"DM_NONE", AL_NONE,
-	"DM_INVERSE", AL_INVERSE_DISTANCE,
-	"DM_INVERSE_CLAMPED", AL_INVERSE_DISTANCE_CLAMPED,
-	"DM_LINEAR", AL_LINEAR_DISTANCE,
-	"DM_LINEAR_CLAMPED", AL_LINEAR_DISTANCE_CLAMPED,
-	"DM_EXPONENT", AL_EXPONENT_DISTANCE,
-	"DM_EXPONENT_CLAMPED", AL_EXPONENT_DISTANCE_CLAMPED,
+	{"DM_NONE", AL_NONE},
+	{"DM_INVERSE", AL_INVERSE_DISTANCE},
+	{"DM_INVERSE_CLAMPED", AL_INVERSE_DISTANCE_CLAMPED},
+	{"DM_LINEAR", AL_LINEAR_DISTANCE},
+	{"DM_LINEAR_CLAMPED", AL_LINEAR_DISTANCE_CLAMPED},
+	{"DM_EXPONENT", AL_EXPONENT_DISTANCE},
+	{"DM_EXPONENT_CLAMPED", AL_EXPONENT_DISTANCE_CLAMPED},
 
-	"DM_LAST", AL_INVALID
+	{"DM_LAST", AL_INVALID}
 };
 
 ALint tblContextAttributes[] = {

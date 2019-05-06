@@ -25,7 +25,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "Data.h"
+#include "KA3D/Data.h"
 
 
 #include <AL/al.h>
@@ -41,7 +41,7 @@
 
 #include "DataPrivate.h"
 #include "Error.h"
-#include "WaveFile.h"
+#include "KA3D/WaveFile.h"
 
 namespace KA3D
 {
@@ -52,12 +52,12 @@ static const struct
 	std::uint16_t channels, bytesPerSample;
 	ALenum format;
 } tblAudioFormat[] = {
-	"DF_MONO8", 1, 1, AL_FORMAT_MONO8,
-	"DF_MONO16", 1, 2, AL_FORMAT_MONO16,
-	"DF_STEREO8", 2, 1, AL_FORMAT_STEREO8,
-	"DF_STEREO16", 2, 2, AL_FORMAT_STEREO16,
+	{"DF_MONO8", 1, 1, AL_FORMAT_MONO8},
+	{"DF_MONO16", 1, 2, AL_FORMAT_MONO16},
+	{"DF_STEREO8", 2, 1, AL_FORMAT_STEREO8},
+	{"DF_STEREO16", 2, 2, AL_FORMAT_STEREO16},
 
-	"DF_LAST", 0, 0, 0
+	{"DF_LAST", 0, 0, 0}
 };
 
 static inline ALenum audioDataFormatConvert(DataFormat format);

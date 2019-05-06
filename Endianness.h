@@ -29,7 +29,24 @@
 
 #include <cstdint>
 
-#ifdef __linux__
+#ifdef BYTE_ORDER
+#  define htobe16convert(x) ((x) = htobe16(x))
+#  define htobe32convert(x) ((x) = htobe32(x))
+#  define htobe64convert(x) ((x) = htobe64(x))
+
+#  define betoh16convert(x) ((x) = be16toh(x))
+#  define betoh32convert(x) ((x) = be32toh(x))
+#  define betoh64convert(x) ((x) = be64toh(x))
+
+#  define htole16convert(x) ((x) = htole16(x))
+#  define htole32convert(x) ((x) = htole32(x))
+#  define htole64convert(x) ((x) = htole64(x))
+
+#  define letoh16convert(x) ((x) = le16toh(x))
+#  define letoh32convert(x) ((x) = le32toh(x))
+#  define letoh64convert(x) ((x) = le64toh(x))
+#else
+#ifdef __posix__
 #  include <endian.h>
 
 #  define GE_BYTE_ORDER BYTE_ORDER
@@ -49,7 +66,7 @@
 #  define letoh16convert(x) ((x) = le16toh(x))
 #  define letoh32convert(x) ((x) = le32toh(x))
 #  define letoh64convert(x) ((x) = le64toh(x))
-#else // __linux__
+#else // __posix__
 
 #  define LITTLE_ENDIAN 1234
 #  define BIG_ENDIAN 4321
@@ -189,6 +206,7 @@ static inline void Swap64(std::uint64_t& x) noexcept
 }
 #  endif // Proc tests
 #endif // PLATFORM_LINUX
+#endif // BYTE_ORDER
 
 /**
  * @defgroup Spécialisation de chaque type pour les conversion d'endianness
