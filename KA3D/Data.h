@@ -32,6 +32,12 @@
 #include <vector>
 #include <iostream>
 
+#ifndef __GNUC__
+#ifndef __clang__
+#  define __attribute__(X)
+#endif
+#endif
+
 namespace KA3D
 {
 

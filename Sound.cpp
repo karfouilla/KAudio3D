@@ -25,7 +25,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "Sound.h"
+#include "KA3D/Sound.h"
 
 #include <cassert>
 #include <cstdlib>
@@ -124,7 +124,7 @@ Sound* Sound::fromWav(const std::string& filename)
 {
 	Sound* sound(nullptr);
 	std::fstream file;
-	file.open(filename, std::ios_base::in);
+	file.open(filename, std::ios_base::in | std::ios_base::binary);
 	if(!file.good())
 	{
 		std::ostringstream msg;
