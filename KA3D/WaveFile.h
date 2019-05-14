@@ -69,7 +69,7 @@ public:
 	 * les informations des en-têtes doivent avoir été renseigné avant
 	 * dans les attributs (format, samplesPerSec et size)
 	 */
-	virtual void open(QIODevice::OpenMode mode);
+	virtual void open();
 	/**
 	 * @brief Permet de se déplacer dans les données audio
 	 * @param offset Nombre d'octets par rapport à l'origine \a whence

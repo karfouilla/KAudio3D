@@ -64,7 +64,7 @@ static inline ALenum audioDataFormatConvert(DataFormat format);
 
 
 Data* Data::fromData(const std::vector<quint8>& tblData,
-                               DataFormat format, qint32 freq)
+					 DataFormat format, quint32 freq)
 {
 	DataPrivate* privateData(new DataPrivate);
 	try
@@ -72,7 +72,8 @@ Data* Data::fromData(const std::vector<quint8>& tblData,
 		alGenBuffers(1, &privateData->handle);
 		checkALError();
 		alBufferData(privateData->handle, audioDataFormatConvert(format),
-		             tblData.data(), tblData.size(), freq);
+					 tblData.data(), static_cast<ALsizei>(tblData.size()),
+					 static_cast<ALsizei>(freq));
 		checkALError();
 	}
 	catch(std::runtime_error& e)
@@ -95,7 +96,7 @@ Data* Data::fromWav(QIODevice& file)
 	quint32 freq;
 
 	WaveFile waveFile(file);
-	waveFile.open(QIODevice::ReadOnly);
+	waveFile.open();
 
 	format = waveFile.format();
 	freq = waveFile.samplesPerSec();

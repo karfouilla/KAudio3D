@@ -114,7 +114,7 @@ public:
 	 * @return Pointeur alloué dynamiquement (avec new) vers le buffer de donnée
 	 */
 	static Data* fromData(const std::vector<quint8>& tblData,
-	                      DataFormat format, qint32 freq);
+						  DataFormat format, quint32 freq);
 
 	/**
 	 * @brief Permet de charger des données audio à partir d'un contenue wav

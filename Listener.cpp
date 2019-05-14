@@ -93,7 +93,7 @@ void Listener::Init()
 		if(m_tblAttrib)
 		{
 			// Comptage des attributs
-			int nbAttr(0);
+			unsigned nbAttr(0);
 			for(int i=0; i<CONTEXT_ATTRIBUTES_COUNT; ++i)
 				if(m_tblAttrib[i])
 					++nbAttr;
@@ -102,7 +102,7 @@ void Listener::Init()
 			int* attrib = new int[2*nbAttr];
 
 			// Copie dans la nouvelle structure
-			int num(0);
+			unsigned num(0);
 			for(int i=0; i<CONTEXT_ATTRIBUTES_COUNT; ++i)
 			{
 				if(m_tblAttrib[i])

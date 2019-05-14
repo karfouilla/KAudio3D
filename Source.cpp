@@ -55,7 +55,8 @@ void Source::Init(Data* pData)
 		m_pData = pData;
 		alGenSources(1, &m_pSource->handle);
 		checkALError();
-		alSourcei(m_pSource->handle, AL_BUFFER, m_pData->data()->handle);
+		alSourcei(m_pSource->handle, AL_BUFFER,
+				  static_cast<ALint>(m_pData->data()->handle));
 		checkALError();
 	}
 	catch(std::exception& e)

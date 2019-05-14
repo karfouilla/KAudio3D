@@ -94,7 +94,7 @@ WaveFile::WaveFile(QIODevice& refFile) noexcept:
 WaveFile::~WaveFile() noexcept
 { }
 
-void WaveFile::open(QIODevice::OpenMode )
+void WaveFile::open()
 {
 	if(m_refFile.openMode() == QIODevice::ReadOnly)
 	{
@@ -220,7 +220,7 @@ void WaveFile::writeHeaders()
 quint64 WaveFile::read(void* data, quint64 size)
 {
 	quint32 readable;
-	readable = std::min(static_cast<quint64>(m_uRemaining), size);
+	readable = std::min(m_uRemaining, static_cast<quint32>(size));
 	rawRead(data, readable);
 
 	if(Data::formatBytesPerSample(m_format) == 2)
@@ -244,7 +244,7 @@ void WaveFile::write(const void* data, quint64 size)
 
 	if(Data::formatBytesPerSample(m_format) == 2)
 	{
-		quint32 count(size/2);
+		quint32 count(static_cast<quint32>(size)/2);
 		const quint16* data16h(static_cast<const quint16*>(data));
 
 		quint16* data16(new quint16[count]);
@@ -253,7 +253,7 @@ void WaveFile::write(const void* data, quint64 size)
 
 		try
 		{
-			rawWrite(data16, size);
+			rawWrite(data16, static_cast<qint64>(size));
 		}
 		catch(...)
 		{
@@ -264,7 +264,7 @@ void WaveFile::write(const void* data, quint64 size)
 	}
 	else
 	{
-		rawWrite(data, size);
+		rawWrite(data, static_cast<qint64>(size));
 	}
 	m_uRemaining -= size;
 }
@@ -407,7 +407,7 @@ void WaveFile::findNextChunk(const quint8* value, quint32& cksz)
 			nextChunk(chunk, cksz);
 		}
 	}
-	catch(std::exception& e)
+	catch(std::exception& )
 	{
 		if(m_refFile.atEnd())
 		{
