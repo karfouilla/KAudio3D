@@ -2,7 +2,7 @@
  *
  * @file WavFile.cpp
  * @author karfouilla
- * @version 1.0
+ * @version 1.0Q
  * @date 27 avril 2019
  * @brief Contient la gestion des fichiers RIFF/WAVE (CPP)
  *
@@ -31,10 +31,11 @@
 #include <cstring>
 #include <cstdint>
 
+#include <algorithm>
 #include <iostream>
 #include <sstream>
 
-#include "Endianness.h"
+#include <QtEndian>
 
 namespace KA3D
 {
@@ -42,23 +43,23 @@ namespace KA3D
 // WAVE structure and data
 struct fmtCommon
 {
-	std::uint16_t wFormatTag;
-	std::uint16_t wChannels;
-	std::uint32_t dwSamplesPerSec;
-	std::uint32_t dwAvgBytesPerSec;
-	std::uint16_t wBlockAlign;
+	quint16 wFormatTag;
+	quint16 wChannels;
+	quint32 dwSamplesPerSec;
+	quint32 dwAvgBytesPerSec;
+	quint16 wBlockAlign;
 };
 struct fmtSpecificPCM
 {
-	std::uint16_t wBitsPerSample;
+	quint16 wBitsPerSample;
 };
 
-const std::uint16_t WAVE_FORMAT_PCM = 0x0001;
+const quint16 WAVE_FORMAT_PCM = 0x0001;
 
-const std::uint8_t RIFF_TAG_RIFF[] = {'R', 'I', 'F', 'F'};
-const std::uint8_t RIFF_TAG_WAVE[] = {'W', 'A', 'V', 'E'};
-const std::uint8_t RIFF_TAG_FMT[] = {'f', 'm', 't', ' '};
-const std::uint8_t RIFF_TAG_DATA[] = {'d', 'a', 't', 'a'};
+const quint8 RIFF_TAG_RIFF[] = {'R', 'I', 'F', 'F'};
+const quint8 RIFF_TAG_WAVE[] = {'W', 'A', 'V', 'E'};
+const quint8 RIFF_TAG_FMT[] = {'f', 'm', 't', ' '};
+const quint8 RIFF_TAG_DATA[] = {'d', 'a', 't', 'a'};
 
 /*
  * WAVE chunk				4	4	-
@@ -76,11 +77,11 @@ const std::uint8_t RIFF_TAG_DATA[] = {'d', 'a', 't', 'a'};
  * TOTAL FORMAT				16
  * TOTAL HEADER				36
  */
-const std::uint32_t DEFAULT_FORMAT_SIZE = 16;
-const std::uint32_t DEFAULT_HEADER_SIZE = 36;
+const quint32 DEFAULT_FORMAT_SIZE = 16;
+const quint32 DEFAULT_HEADER_SIZE = 36;
 
 
-WaveFile::WaveFile(std::iostream& refFile) noexcept:
+WaveFile::WaveFile(QIODevice& refFile) noexcept:
 	m_refFile(refFile),
 	m_uFileSize(4),
 	m_uFileRemaining(m_uFileSize),
@@ -93,19 +94,19 @@ WaveFile::WaveFile(std::iostream& refFile) noexcept:
 WaveFile::~WaveFile() noexcept
 { }
 
-void WaveFile::open(std::ios_base::openmode mode)
+void WaveFile::open(QIODevice::OpenMode )
 {
-	if(mode == std::ios_base::in)
+	if(m_refFile.openMode() == QIODevice::ReadOnly)
 	{
 		readHeaders();
 	}
-	else if(mode == std::ios_base::out)
+	else if(m_refFile.openMode() == QIODevice::WriteOnly)
 	{
 		writeHeaders();
 	}
 	else
 	{
-		std::cerr << "Invalid mode '" << static_cast<int>(mode);
+		std::cerr << "Invalid mode '" << static_cast<int>(m_refFile.openMode());
 		std::cerr << "': only ios_base::in or ios_base::out" << std::endl;
 		abort();
 	}
@@ -113,10 +114,10 @@ void WaveFile::open(std::ios_base::openmode mode)
 
 void WaveFile::readHeaders()
 {
-	std::uint32_t cksz;
+	quint32 cksz;
 	fmtCommon fmtCom;
 	fmtSpecificPCM fmtPCM;
-	std::uint16_t audioPitch;
+	quint16 audioPitch;
 
 	// En-tête RIFF/WAVE
 	checkNextChunk(RIFF_TAG_RIFF, m_uFileSize);
@@ -178,7 +179,7 @@ void WaveFile::readHeaders()
 
 void WaveFile::writeHeaders()
 {
-	std::uint16_t bytesPerSample(Data::formatBytesPerSample(m_format));
+	quint16 bytesPerSample(Data::formatBytesPerSample(m_format));
 	fmtCommon fmtCom;
 	fmtSpecificPCM fmtPCM;
 	fmtCom.wFormatTag = WAVE_FORMAT_PCM;
@@ -216,19 +217,20 @@ void WaveFile::writeHeaders()
 	assert(m_uFileRemaining == m_uRemaining);
 }
 
-std::uint64_t WaveFile::read(void* data, std::uint64_t size)
+quint64 WaveFile::read(void* data, quint64 size)
 {
-	std::uint32_t readable;
-	readable = std::min(static_cast<std::uint64_t>(m_uRemaining), size);
+	quint32 readable;
+	readable = std::min(static_cast<quint64>(m_uRemaining), size);
 	rawRead(data, readable);
 
 	if(Data::formatBytesPerSample(m_format) == 2)
 	{
-		std::uint16_t* data16(static_cast<std::uint16_t*>(data));
-		std::uint32_t count(readable/2);
-		for(std::uint32_t i=0; i<count; ++i)
+		quint16* data16(static_cast<quint16*>(data));
+		quint32 count(readable/2);
+
+		for(quint32 i=0; i<count; ++i)
 		{
-			letoh(data16[i]);
+			data16[i] = qFromLittleEndian(data16[i]);
 		}
 	}
 
@@ -236,27 +238,29 @@ std::uint64_t WaveFile::read(void* data, std::uint64_t size)
 	return readable;
 }
 
-void WaveFile::write(const void* data, std::uint64_t size)
+void WaveFile::write(const void* data, quint64 size)
 {
 	assert(m_uRemaining >= size);
 
 	if(Data::formatBytesPerSample(m_format) == 2)
 	{
-		std::uint16_t count(size/2);
-		std::uint16_t* data16(new std::uint16_t[count]);
-		std::memcpy(data16, data, size);
+		quint32 count(size/2);
+		const quint16* data16h(static_cast<const quint16*>(data));
+
+		quint16* data16(new quint16[count]);
+		for(quint32 i=0; i<count; ++i)
+			data16[i] = qToLittleEndian(data16h[i]);
+
 		try
 		{
-			for(std::uint32_t i=0; i<count; ++i)
-			{
-				letoh(data16[i]);
-			}
 			rawWrite(data16, size);
 		}
 		catch(...)
 		{
 			delete[] data16;
+			throw;
 		}
+		delete[] data16;
 	}
 	else
 	{
@@ -264,36 +268,20 @@ void WaveFile::write(const void* data, std::uint64_t size)
 	}
 	m_uRemaining -= size;
 }
-std::int64_t WaveFile::seek(std::int64_t offset, std::ios_base::seekdir whence)
+void WaveFile::seek(qint64 offset)
 {
-	std::uint32_t done(m_uSize - m_uRemaining);
+	quint32 done(m_uSize - m_uRemaining);
 	// distance relative curseur-début
-	std::int64_t min(- static_cast<std::int64_t>(done));
+	qint64 min(- static_cast<qint64>(done));
 	// distance relative curseur-fin
-	std::int64_t max(static_cast<std::int64_t>(m_uRemaining));
+	qint64 max(static_cast<qint64>(m_uRemaining));
 
-	std::int64_t realOffset(0);
+	qint64 relOffset(- static_cast<qint64>(done) + offset);
+	relOffset = std::min(std::max(relOffset, min), max);
 
-	if(whence == std::ios_base::cur)
-		realOffset = offset;
-	else if(whence == std::ios_base::beg)
-		realOffset = - static_cast<std::int64_t>(done) + offset;
-	else if(whence == std::ios_base::end)
-		realOffset = static_cast<std::int64_t>(m_uRemaining) + offset;
-	else
-	{
-		std::cerr << "Invalid whence '"
-		          << static_cast<int>(whence) << "'" << std::endl;
-		abort();
-	}
-
-	realOffset = std::min(std::max(realOffset, min), max);
-
-	m_refFile.seekg(realOffset, std::ios_base::cur);
-	m_uFileRemaining -= realOffset;
-	m_uRemaining -= realOffset;
-
-	return (m_uSize - m_uRemaining);
+	m_refFile.seek(m_refFile.pos()+relOffset);
+	m_uFileRemaining -= relOffset;
+	m_uRemaining -= relOffset;
 }
 
 void WaveFile::close()
@@ -301,7 +289,7 @@ void WaveFile::close()
 	skipRead(m_uFileRemaining);
 }
 
-void WaveFile::setSamplesPerSec(std::uint32_t dwSamplesPerSec) noexcept
+void WaveFile::setSamplesPerSec(quint32 dwSamplesPerSec) noexcept
 {
 	// Avant ouverture et en mode écriture seulement
 	m_uSamplesPerSec = dwSamplesPerSec;
@@ -311,12 +299,12 @@ void WaveFile::setFormat(DataFormat format) noexcept
 	// Avant ouverture et en mode écriture seulement
 	m_format = format;
 }
-void WaveFile::setSize(std::uint32_t dwSize) noexcept
+void WaveFile::setSize(quint32 dwSize) noexcept
 {
 	// Avant ouverture et en mode écriture seulement
 	m_uSize = dwSize;
 }
-std::uint32_t WaveFile::samplesPerSec() const noexcept
+quint32 WaveFile::samplesPerSec() const noexcept
 {
 	return m_uSamplesPerSec;
 }
@@ -324,24 +312,22 @@ DataFormat WaveFile::format() const noexcept
 {
 	return m_format;
 }
-std::uint32_t WaveFile::size() const noexcept
+quint32 WaveFile::size() const noexcept
 {
 	return m_uSize;
 }
 
-void WaveFile::rawRead(void* data, std::uint64_t size, std::uint64_t n)
+void WaveFile::rawRead(void* data, qint64 size, qint64 n)
 {
-	m_refFile.read(static_cast<std::iostream::char_type*>(data), n*size);
-	if(!m_refFile.good())
+	if(m_refFile.read(static_cast<char*>(data), n*size) < n*size)
 	{
 		throw std::runtime_error("Reading error");
 	}
 	m_uFileRemaining -= size*n;
 }
-void WaveFile::rawWrite(const void* data, std::uint64_t size, std::uint64_t n)
+void WaveFile::rawWrite(const void* data, qint64 size, qint64 n)
 {
-	m_refFile.write(static_cast<const std::iostream::char_type*>(data), n*size);
-	if(!m_refFile.good())
+	if(m_refFile.write(static_cast<const char*>(data), n*size) < n*size)
 	{
 		throw std::runtime_error("Writing error");
 	}
@@ -349,34 +335,34 @@ void WaveFile::rawWrite(const void* data, std::uint64_t size, std::uint64_t n)
 }
 
 
-void WaveFile::skipRead(std::uint32_t size)
+void WaveFile::skipRead(quint32 size)
 {
-	m_refFile.seekg(size, std::ios_base::cur);
+	m_refFile.seek(m_refFile.pos()+size);
 	m_uRemaining -= size;
 	m_uFileRemaining -= size;
 }
 void WaveFile::skipWord()
 {
-	std::uint16_t empty;
-	rawRead(&empty, sizeof(std::uint16_t));
+	quint16 empty;
+	rawRead(&empty, sizeof(quint16));
 }
-void WaveFile::readWord(std::uint16_t& word)
+void WaveFile::readWord(quint16& word)
 {
-	rawRead(&word, sizeof(std::uint16_t));
-	letoh(word);
+	rawRead(&word, sizeof(quint16));
+	word = qFromLittleEndian(word);
 }
-void WaveFile::readDWord(std::uint32_t& dword)
+void WaveFile::readDWord(quint32& dword)
 {
-	rawRead(&dword, sizeof(std::uint32_t));
-	letoh(dword);
+	rawRead(&dword, sizeof(quint32));
+	dword = qFromLittleEndian(dword);
 }
-void WaveFile::readChunk(std::uint8_t* chunk)
+void WaveFile::readChunk(quint8* chunk)
 {
 	rawRead(chunk, 1, 4);
 }
-void WaveFile::checkChunk(const std::uint8_t* value)
+void WaveFile::checkChunk(const quint8* value)
 {
-	std::uint8_t chunk[4];
+	quint8 chunk[4];
 	readChunk(chunk);
 
 	if(std::memcmp(chunk, value, 4) != 0) // chunk != value
@@ -388,15 +374,15 @@ void WaveFile::checkChunk(const std::uint8_t* value)
 	}
 }
 
-void WaveFile::nextChunk(std::uint8_t* chunk, std::uint32_t& cksz)
+void WaveFile::nextChunk(quint8* chunk, quint32& cksz)
 {
 	readChunk(chunk);
 	readDWord(cksz);
 }
 
-void WaveFile::checkNextChunk(const std::uint8_t* value, std::uint32_t& cksz)
+void WaveFile::checkNextChunk(const quint8* value, quint32& cksz)
 {
-	std::uint8_t chunk[4];
+	quint8 chunk[4];
 	nextChunk(chunk, cksz);
 
 	if(std::memcmp(chunk, value, 4) != 0) // chunk != value
@@ -408,11 +394,11 @@ void WaveFile::checkNextChunk(const std::uint8_t* value, std::uint32_t& cksz)
 	}
 }
 
-void WaveFile::findNextChunk(const std::uint8_t* value, std::uint32_t& cksz)
+void WaveFile::findNextChunk(const quint8* value, quint32& cksz)
 {
 	try
 	{
-		std::uint8_t chunk[4];
+		quint8 chunk[4];
 
 		nextChunk(chunk, cksz);
 		while(std::memcmp(chunk, value, 4) != 0) // while(chunck != value)
@@ -423,7 +409,7 @@ void WaveFile::findNextChunk(const std::uint8_t* value, std::uint32_t& cksz)
 	}
 	catch(std::exception& e)
 	{
-		if(m_refFile.eof())
+		if(m_refFile.atEnd())
 		{
 			std::ostringstream msg;
 			msg << "Missing chunk " << value[0] << value[1]
@@ -437,21 +423,21 @@ void WaveFile::findNextChunk(const std::uint8_t* value, std::uint32_t& cksz)
 	}
 }
 
-void WaveFile::writeWord(std::uint16_t word)
+void WaveFile::writeWord(quint16 word)
 {
-	htole(word);
-	rawWrite(&word, sizeof(std::uint16_t));
+	word = qToLittleEndian(word);
+	rawWrite(&word, sizeof(quint16));
 }
-void WaveFile::writeDWord(std::uint32_t dword)
+void WaveFile::writeDWord(quint32 dword)
 {
-	htole(dword);
-	rawWrite(&dword, sizeof(std::uint32_t));
+	dword = qToLittleEndian(dword);
+	rawWrite(&dword, sizeof(quint32));
 }
-void WaveFile::writeChunk(const std::uint8_t* chunk)
+void WaveFile::writeChunk(const quint8* chunk)
 {
 	rawWrite(chunk, 1, 4);
 }
-void WaveFile::writeChunk(const std::uint8_t* chunk, std::uint32_t cksz)
+void WaveFile::writeChunk(const quint8* chunk, quint32 cksz)
 {
 	writeChunk(chunk);
 	writeDWord(cksz);

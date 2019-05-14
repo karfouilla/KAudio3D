@@ -4,7 +4,7 @@
  *
  * @file DataPrivate.h
  * @author karfouilla
- * @version α.0.1
+ * @version 1.0Q
  * @date 27 avril 2019
  * @brief Fichier contenant la classe de gestion privée des données audio (H)
  *

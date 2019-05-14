@@ -4,7 +4,7 @@
  *
  * @file Error.h
  * @author karfouilla
- * @version 1.0
+ * @version 1.0Q
  * @date 27 avril 2019
  * @brief Contient la gestion des erreurs (H)
  *

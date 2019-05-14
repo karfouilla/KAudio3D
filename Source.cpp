@@ -2,7 +2,7 @@
  *
  * @file Source.cpp
  * @author karfouilla
- * @version 1.0
+ * @version 1.0Q
  * @date 27 avril 2019
  * @brief Fichier contenant la classe de source sonore (CPP)
  *
@@ -202,7 +202,7 @@ void Source::setOffsetSec(float second)
 	checkALError();
 }
 
-void Source::setOffset(std::uint32_t sample)
+void Source::setOffset(quint32 sample)
 {
 	alSourcei(m_pSource->handle, AL_SAMPLE_OFFSET, static_cast<ALint>(sample));
 	checkALError();
@@ -329,12 +329,12 @@ float Source::offsetSec() const
 	return val;
 }
 
-std::uint32_t Source::offset() const
+quint32 Source::offset() const
 {
 	ALint val;
 	alGetSourcei(m_pSource->handle, AL_SAMPLE_OFFSET, &val);
 	checkALError();
-	return static_cast<std::uint32_t>(val);
+	return static_cast<quint32>(val);
 }
 
 bool Source::isLooping() const

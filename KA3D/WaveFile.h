@@ -4,7 +4,7 @@
  *
  * @file WavFile.h
  * @author karfouilla
- * @version 1.0
+ * @version 1.0Q
  * @date 27 avril 2019
  * @brief Contient la gestion des fichiers RIFF/WAVE (H)
  *
@@ -28,7 +28,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include <cstdint>
-#include <iostream>
+#include <QIODevice>
 
 #include "Data.h"
 
@@ -50,9 +50,8 @@ public:
 	/**
 	 * Permet de lire/écrire dans un fichier en wave
 	 * @param pFile fichier à ouvrir (peut être une portion de fichier)
-	 * @param isClose Est-ce qu'on ferme le fichier à la fin (lors de close)
 	 */
-	WaveFile(std::iostream& refFile) noexcept;
+	WaveFile(QIODevice& refFile) noexcept;
 
 	//! Copie interdite
 	WaveFile(const WaveFile& other) noexcept = delete;
@@ -70,7 +69,7 @@ public:
 	 * les informations des en-têtes doivent avoir été renseigné avant
 	 * dans les attributs (format, samplesPerSec et size)
 	 */
-	virtual void open(std::ios_base::openmode mode);
+	virtual void open(QIODevice::OpenMode mode);
 	/**
 	 * @brief Permet de se déplacer dans les données audio
 	 * @param offset Nombre d'octets par rapport à l'origine \a whence
@@ -80,16 +79,14 @@ public:
 	 * SEEK_END	fin du fichier
 	 * @return La nouvelle position dans les données audio
 	 */
-	virtual std::int64_t seek(std::int64_t offset,
-	                          std::ios_base::seekdir whence);
+	virtual void seek(qint64 offset);
 	/**
 	 * @brief Permet de lire les données audio du wave (au format #format)
 	 * @param[out] data Variable dans laquelle on stocke les données lu
 	 * @param[in] size Taille des données à lire en octets
 	 * @return Taille des données lu en octets
 	 */
-	virtual std::uint64_t read(void* data, std::uint64_t size)
-		__attribute__((nonnull));
+	virtual quint64 read(void* data, quint64 size) __attribute__((nonnull));
 	/**
 	 * @brief Permet d'écrire les données audio du wave
 	 * Le total des données ajouté dans le fichier ne doit pas dépasser
@@ -97,8 +94,7 @@ public:
 	 * @param data Données audio à écrire (voir #format pour le format)
 	 * @param size Taille des données à écrire
 	 */
-	virtual void write(const void* data, std::uint64_t size)
-		__attribute__((nonnull));
+	virtual void write(const void* data, quint64 size) __attribute__((nonnull));
 	/**
 	 * @brief Permet de fermet le fichier wave
 	 * Si le flux de fichier doit être fermé, il sera fermé,
@@ -109,60 +105,60 @@ public:
 
 	//! Permet de définir la fréquence d'échantillonage
 	//! (à définir en mode écriteur et avant ouverture du fichier)
-	void setSamplesPerSec(std::uint32_t dwSamplesPerSec) noexcept;
+	void setSamplesPerSec(quint32 dwSamplesPerSec) noexcept;
 	//! Permet de définir le format des données audio (cf. #DataFormat)
 	//! (à définir en mode écriteur et avant ouverture du fichier)
 	void setFormat(DataFormat format) noexcept;
 	//! Permet de définir la taille des données audio en octets
 	//! (à définir en mode écriteur et avant ouverture du fichier)
-	void setSize(std::uint32_t dwSize) noexcept;
+	void setSize(quint32 dwSize) noexcept;
 	//! Permet d'obtenir la fréquence d'échantillonage
 	//! (disponible après ouverture en mode lecture)
-	std::uint32_t samplesPerSec() const noexcept;
+	quint32 samplesPerSec() const noexcept;
 	//! Permet d'obtenir le format des données audio
 	//! (disponible après ouverture en mode lecture)
 	DataFormat format() const noexcept;
 	//! Permet d'obtenir la taille (en octets) données audio
 	//! (disponible après ouverture en mode lecture)
-	std::uint32_t size() const noexcept;
+	quint32 size() const noexcept;
 
 private:
-	void rawRead(void* data, std::uint64_t size, std::uint64_t n = 1);
-	void rawWrite(const void* data, std::uint64_t size, std::uint64_t n = 1);
+	void rawRead(void* data, qint64 size, qint64 n = 1);
+	void rawWrite(const void* data, qint64 size, qint64 n = 1);
 
 
 	void readHeaders();
 
-	void skipRead(std::uint32_t size);
+	void skipRead(quint32 size);
 	void skipWord();
 
-	void readWord(std::uint16_t& word);
-	void readDWord(std::uint32_t& dword);
+	void readWord(quint16& word);
+	void readDWord(quint32& dword);
 
-	void readChunk(std::uint8_t* chunk);
-	void checkChunk(const std::uint8_t* chunk);
+	void readChunk(quint8* chunk);
+	void checkChunk(const quint8* chunk);
 
-	void nextChunk(std::uint8_t* chunk, std::uint32_t& cksz);
-	void checkNextChunk(const std::uint8_t* chunk, std::uint32_t& cksz);
-	void findNextChunk(const std::uint8_t* chunk, std::uint32_t& cksz);
+	void nextChunk(quint8* chunk, quint32& cksz);
+	void checkNextChunk(const quint8* chunk, quint32& cksz);
+	void findNextChunk(const quint8* chunk, quint32& cksz);
 
 
 	void writeHeaders();
 
-	void writeWord(std::uint16_t word);
-	void writeDWord(std::uint32_t dword);
+	void writeWord(quint16 word);
+	void writeDWord(quint32 dword);
 
-	void writeChunk(const std::uint8_t* chunk);
-	void writeChunk(const std::uint8_t* chunk, std::uint32_t cksz);
+	void writeChunk(const quint8* chunk);
+	void writeChunk(const quint8* chunk, quint32 cksz);
 
 private:
-	std::iostream& m_refFile; //!< Flux du wave
-	std::uint32_t m_uFileSize; //!< Taille du flux RIFF/WAVE
-	std::uint32_t m_uFileRemaining; //!< Nombre d'octets restant (à lire/écrire)
-	std::uint32_t m_uSamplesPerSec; //!< Fréquence d'échantillonage de l'audio
+	QIODevice& m_refFile; //!< Flux du wave
+	quint32 m_uFileSize; //!< Taille du flux RIFF/WAVE
+	quint32 m_uFileRemaining; //!< Nombre d'octets restant (à lire/écrire)
+	quint32 m_uSamplesPerSec; //!< Fréquence d'échantillonage de l'audio
 	DataFormat m_format; //!< Format des données audio
-	std::uint32_t m_uSize; //!< Taille (en octets) des données audio
-	std::uint32_t m_uRemaining; //!< Nombre d'octets restant (à lire ou écrire)
+	quint32 m_uSize; //!< Taille (en octets) des données audio
+	quint32 m_uRemaining; //!< Nombre d'octets restant (à lire ou écrire)
 };
 
 } // namespace KA3D

@@ -4,7 +4,7 @@
  *
  * @file Data.h
  * @author karfouilla
- * @version α.0.1
+ * @version 1.0Q
  * @date 27 avril 2019
  * @brief Fichier contenant la classe de gestion des données audio (H)
  *
@@ -31,6 +31,8 @@
 
 #include <vector>
 #include <iostream>
+
+#include <QIODevice>
 
 #ifndef __GNUC__
 #ifndef __clang__
@@ -71,21 +73,21 @@ public:
 	 * @param format Format audio (cf. #DataFormat)
 	 * @return Nombre de canaux du format (sous forme d'un entier)
 	 */
-	static std::uint16_t formatChannels(DataFormat format) noexcept
+	static quint16 formatChannels(DataFormat format) noexcept
 		__attribute__((pure));
 	/**
 	 * @brief Permet d'obtenir le nombre d'octets par échantillon et par canal
 	 * @param format Format audio (cf. #DataFormat)
 	 * @return Nombre d'octet (sous forme d'un entier)
 	 */
-	static std::uint16_t formatBytesPerSample(DataFormat format) noexcept
+	static quint16 formatBytesPerSample(DataFormat format) noexcept
 		__attribute__((pure));
 	/**
 	 * @brief Permet d'obtenir le nombre d'octets par échantillon d'un format
 	 * @param format Format audio (cf. #DataFormat)
 	 * @return Nombre d'octet (sous forme d'un entier)
 	 */
-	static std::uint16_t formatPitch(DataFormat format) noexcept
+	static quint16 formatPitch(DataFormat format) noexcept
 		__attribute__((pure));
 	/**
 	 * @brief Permet d'obtenir le format audio correspondant
@@ -97,7 +99,7 @@ public:
 	 * @return Format audio (cf. #DataFormat) correspondant aux paramètre
 	 */
 	static DataFormat
-	formatFromPerSample(std::uint16_t channels, std::uint16_t bytesPerSample)
+	formatFromPerSample(quint16 channels, quint16 bytesPerSample)
 		noexcept __attribute__((pure));
 
 public:
@@ -111,15 +113,15 @@ public:
 	 * @param freq Fréquence d'échantillonage des données
 	 * @return Pointeur alloué dynamiquement (avec new) vers le buffer de donnée
 	 */
-	static Data* fromData(const std::vector<std::uint8_t>& tblData,
-	                      DataFormat format, std::int32_t freq);
+	static Data* fromData(const std::vector<quint8>& tblData,
+	                      DataFormat format, qint32 freq);
 
 	/**
 	 * @brief Permet de charger des données audio à partir d'un contenue wav
 	 * @param file Flux contenant le fichier audio
 	 * @return Pointeur alloué dynamiquement (avec new) vers le buffer de donnée
 	 */
-	static Data* fromWav(std::iostream& file);
+	static Data* fromWav(QIODevice& file);
 
 	/**
 	 * @brief Destructeur

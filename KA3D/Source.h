@@ -4,7 +4,7 @@
  *
  * @file Source.h
  * @author karfouilla
- * @version 1.0
+ * @version 1.0Q
  * @date 27 avril 2019
  * @brief Fichier contenant la classe de source sonore (H)
  *
@@ -180,7 +180,7 @@ public:
 	 * @brief Définit la position dans l'audio
 	 * @param second nombre d'échantillon
 	 */
-	void setOffset(std::uint32_t sample);
+	void setOffset(quint32 sample);
 	/**
 	 * @brief Permet de définir si on revient au début quand la lecture est fini
 	 */
@@ -259,7 +259,7 @@ public:
 	/**
 	 * @brief Permet d'obtenir la position dans l'audio (en échantillons)
 	 */
-	std::uint32_t offset() const;
+	quint32 offset() const;
 	/**
 	 * @brief Permet de savoir si la lecture est en boucle
 	 */

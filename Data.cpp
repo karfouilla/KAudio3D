@@ -2,7 +2,7 @@
  *
  * @file Data.cpp
  * @author karfouilla
- * @version 1.0
+ * @version 1.0Q
  * @date 27 avril 2019
  * @brief Fichier contenant la classe de gestion des données audio (CPP)
  *
@@ -49,7 +49,7 @@ namespace KA3D
 static const struct
 {
 	const char* name;
-	std::uint16_t channels, bytesPerSample;
+	quint16 channels, bytesPerSample;
 	ALenum format;
 } tblAudioFormat[] = {
 	{"DF_MONO8", 1, 1, AL_FORMAT_MONO8},
@@ -63,8 +63,8 @@ static const struct
 static inline ALenum audioDataFormatConvert(DataFormat format);
 
 
-Data* Data::fromData(const std::vector<std::uint8_t>& tblData,
-                               DataFormat format, std::int32_t freq)
+Data* Data::fromData(const std::vector<quint8>& tblData,
+                               DataFormat format, qint32 freq)
 {
 	DataPrivate* privateData(new DataPrivate);
 	try
@@ -88,14 +88,14 @@ Data* Data::fromData(const std::vector<std::uint8_t>& tblData,
 	return new Data(privateData);
 }
 
-Data* Data::fromWav(std::iostream& file)
+Data* Data::fromWav(QIODevice& file)
 {
-	std::vector<std::uint8_t> tblData;
+	std::vector<quint8> tblData;
 	DataFormat format;
-	std::uint32_t freq;
+	quint32 freq;
 
 	WaveFile waveFile(file);
-	waveFile.open(std::ios_base::in);
+	waveFile.open(QIODevice::ReadOnly);
 
 	format = waveFile.format();
 	freq = waveFile.samplesPerSec();
@@ -128,25 +128,25 @@ const char* Data::formatName(DataFormat format) noexcept
 	return tblAudioFormat[format].name;
 }
 
-std::uint16_t Data::formatChannels(DataFormat format) noexcept
+quint16 Data::formatChannels(DataFormat format) noexcept
 {
 	assert(format < DF_LAST);
 	return tblAudioFormat[format].channels;
 }
 
-std::uint16_t Data::formatBytesPerSample(DataFormat format) noexcept
+quint16 Data::formatBytesPerSample(DataFormat format) noexcept
 {
 	assert(format < DF_LAST);
 	return tblAudioFormat[format].bytesPerSample;
 }
 
-std::uint16_t Data::formatPitch(DataFormat format) noexcept
+quint16 Data::formatPitch(DataFormat format) noexcept
 {
 	return formatChannels(format) * formatBytesPerSample(format);
 }
 DataFormat
-Data::formatFromPerSample(std::uint16_t channels,
-                               std::uint16_t bytesPerSample) noexcept
+Data::formatFromPerSample(quint16 channels,
+                               quint16 bytesPerSample) noexcept
 {
 	if(channels == 1 && bytesPerSample == 1)
 		return DF_MONO8;

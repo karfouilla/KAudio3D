@@ -4,7 +4,7 @@
  *
  * @file Sound.h
  * @author karfouilla
- * @version 1.0
+ * @version 1.0Q
  * @date 30 avril 2019
  * @brief Fichier contenant la classe de gestion d'un son (H)
  *
@@ -28,6 +28,8 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include <cstdint>
+
+#include <QIODevice>
 
 #include "Source.h"
 
@@ -104,7 +106,7 @@ public:
 	 * @brief Permet de définir les données à partir d'un flux en wav
 	 * @param file Flux à lire
 	 */
-	void setWav(std::iostream& file);
+	void setWav(QIODevice& file);
 
 	/**
 	 * @brief Permet de jouer le son

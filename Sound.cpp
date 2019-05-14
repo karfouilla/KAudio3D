@@ -2,7 +2,7 @@
  *
  * @file MultiSource.cpp
  * @author karfouilla
- * @version 1.0
+ * @version 1.0Q
  * @date 30 avril 2019
  * @brief Fichier contenant la classe de source sonore multiple (CPP)
  *
@@ -34,6 +34,8 @@
 #include <fstream>
 #include <sstream>
 #include <string>
+
+#include <QFile>
 
 namespace KA3D
 {
@@ -67,7 +69,7 @@ void Sound::setData(Data* pData, bool removeData) noexcept
 	m_removeData = removeData;
 }
 
-void Sound::setWav(std::iostream& file)
+void Sound::setWav(QIODevice& file)
 {
 	m_pData = Data::fromWav(file);
 	m_removeData = true;
@@ -123,13 +125,12 @@ void Sound::play()
 Sound* Sound::fromWav(const std::string& filename)
 {
 	Sound* sound(nullptr);
-	std::fstream file;
-	file.open(filename, std::ios_base::in | std::ios_base::binary);
-	if(!file.good())
+	QFile file(QString::fromStdString(filename));
+	if(!file.open(QIODevice::ReadOnly))
 	{
 		std::ostringstream msg;
 		msg << "Unable to open wav file '" << filename << "': "
-		    << std::strerror(errno);
+			<< file.errorString().toStdString();
 		throw std::runtime_error(msg.str());
 	}
 	try
